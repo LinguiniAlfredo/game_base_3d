@@ -6,16 +6,18 @@
 #include "utils/timer.h"
 #include "gamestate.h"
 
-#include "shapes/triangle.h"
+//#include "shapes/triangle.h"
+#include "shapes/rectangle.h"
 
 SDL_Window   *sdl_window = NULL;
 SDL_GLContext opengl_context;
 
 Gamestate gamestate = {
     .mode                   = GAME,
-    .screen_width           = 1920/2,
-    .screen_height          = 1080/2,
+    .screen_width           = 800,
+    .screen_height          = 600,
     .ticks_per_frame        = 1000.f / 60,
+    .wireframe              = 0
 };
 
 int initialize()
@@ -51,7 +53,7 @@ int initialize()
 
 void close_app()
 {
-    triangle_destroy(gamestate.triangle);
+    rectangle_destroy(gamestate.rectangle);
 
     arena_reset(&gamestate.arena);
     arena_destroy(&gamestate.arena);
@@ -60,6 +62,16 @@ void close_app()
     SDL_DestroyWindow(sdl_window);
 
     SDL_Quit();
+}
+
+void toggle_wireframe()
+{
+    gamestate.wireframe = !gamestate.wireframe;
+    if (gamestate.wireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 }
 
 void handle_events()
@@ -75,6 +87,9 @@ void handle_events()
                 case SDLK_ESCAPE:
                     gamestate.mode = QUIT;
                     break;
+                case SDLK_F1:
+                    toggle_wireframe();
+                    break;
             }
         }
     }
@@ -85,7 +100,7 @@ void render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    triangle_draw(gamestate.triangle);
+    rectangle_draw(gamestate.rectangle);
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -140,9 +155,9 @@ int main(int argc, char **argv)
     if (initialize() == 0) {
         arena_create(&gamestate.arena, ARENA_SIZE);
 
-        Triangle *triangle = (Triangle *)arena_alloc(&gamestate.arena, sizeof(Triangle));
-        triangle_create(triangle);
-        gamestate.triangle = triangle;
+        Rectangle *rectangle = (Rectangle *)arena_alloc(&gamestate.arena, sizeof(Rectangle));
+        rectangle_create(rectangle);
+        gamestate.rectangle = rectangle;
 
         game_loop();
     }

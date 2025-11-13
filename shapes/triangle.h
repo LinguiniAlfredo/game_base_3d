@@ -63,27 +63,27 @@ void triangle_create(Triangle *triangle)
     glAttachShader(triangle->shader_program, triangle->vertex_shader);
     glAttachShader(triangle->shader_program, triangle->fragment_shader);
     glLinkProgram(triangle->shader_program);
-    
+
     int success;
     char infoLog[512];
     glGetShaderiv(triangle->vertex_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(triangle->vertex_shader, 512, NULL, infoLog);
-        printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s\n", infoLog);
+        printf("vertex shader compilation error\n%s\n", infoLog);
     }
 
     // Check fragment shader compilation
     glGetShaderiv(triangle->fragment_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(triangle->fragment_shader, 512, NULL, infoLog);
-        printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n%s\n", infoLog);
+        printf("fragment shader compilation error\n%s\n", infoLog);
     }
 
     // Check shader program linking
     glGetProgramiv(triangle->shader_program, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(triangle->shader_program, 512, NULL, infoLog);
-        printf("ERROR::PROGRAM::LINKING_FAILED\n%s\n", infoLog);
+        printf("shader program linking error\n%s\n", infoLog);
     }
 
     glDeleteShader(triangle->vertex_shader);
