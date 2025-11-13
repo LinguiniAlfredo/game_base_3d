@@ -6,6 +6,8 @@
 #include "utils/timer.h"
 #include "gamestate.h"
 
+#include "shapes/triangle.h"
+
 SDL_Window   *sdl_window = NULL;
 SDL_GLContext opengl_context;
 
@@ -49,6 +51,8 @@ int initialize()
 
 void close_app()
 {
+    triangle_destroy(gamestate.triangle);
+
     arena_reset(&gamestate.arena);
     arena_destroy(&gamestate.arena);
 
@@ -80,6 +84,8 @@ void render()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    triangle_draw(gamestate.triangle);
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -131,9 +137,13 @@ void game_loop()
 
 int main(int argc, char **argv)
 {
-    arena_create(&gamestate.arena, ARENA_SIZE);
-
     if (initialize() == 0) {
+        arena_create(&gamestate.arena, ARENA_SIZE);
+
+        Triangle *triangle = (Triangle *)arena_alloc(&gamestate.arena, sizeof(Triangle));
+        triangle_create(triangle);
+        gamestate.triangle = triangle;
+
         game_loop();
     }
     close_app();

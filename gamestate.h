@@ -2,7 +2,7 @@
 #define MAX_GAMEOBJECTS 50
 #include <SDL2/SDL.h>
 
-typedef struct Entity Entity;
+typedef struct Triangle Triangle;
 
 typedef enum {
     MENU,
@@ -14,7 +14,8 @@ typedef enum {
 } Gamemode;
 
 typedef struct Gamestate {
-    Entity       *entities[MAX_GAMEOBJECTS];
+    //Entity       *entities[MAX_GAMEOBJECTS];
+    Triangle      *triangle;
     Arena         arena;
     Gamemode      mode;
     int           screen_width;
