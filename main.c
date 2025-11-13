@@ -6,8 +6,8 @@
 #include "utils/timer.h"
 #include "gamestate.h"
 
-//#include "shapes/triangle.h"
-#include "shapes/rectangle.h"
+#include "shapes/triangle.h"
+//#include "shapes/rectangle.h"
 
 SDL_Window   *sdl_window = NULL;
 SDL_GLContext opengl_context;
@@ -53,7 +53,8 @@ int initialize()
 
 void close_app()
 {
-    rectangle_destroy(gamestate.rectangle);
+    triangle_destroy(gamestate.triangle);
+    //rectangle_destroy(gamestate.rectangle);
 
     arena_reset(&gamestate.arena);
     arena_destroy(&gamestate.arena);
@@ -100,7 +101,8 @@ void render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    rectangle_draw(gamestate.rectangle);
+    triangle_draw(gamestate.triangle);
+    //rectangle_draw(gamestate.rectangle);
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -155,9 +157,12 @@ int main(int argc, char **argv)
     if (initialize() == 0) {
         arena_create(&gamestate.arena, ARENA_SIZE);
 
-        Rectangle *rectangle = (Rectangle *)arena_alloc(&gamestate.arena, sizeof(Rectangle));
-        rectangle_create(rectangle);
-        gamestate.rectangle = rectangle;
+        Triangle *triangle = (Triangle *)arena_alloc(&gamestate.arena, sizeof(Triangle));
+        triangle_create(triangle);
+        gamestate.triangle = triangle;
+       // Rectangle *rectangle = (Rectangle *)arena_alloc(&gamestate.arena, sizeof(Rectangle));
+       // rectangle_create(rectangle);
+       // gamestate.rectangle = rectangle;
 
         game_loop();
     }

@@ -3,8 +3,8 @@ CC = gcc
 MINGW_CC = x86_64-w64-mingw32-gcc
 OPTIONS = -Wall -g -pedantic
 RELEASE_OPTIONS = -O2 -s -Wall -pedantic
-LINKER_FLAGS = -lSDL2 -lGL -lGLEW
-MINGW_LINKER_FLAGS = -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lGLEW -mwindows
+LINKER_FLAGS = -lSDL2 -lGL -lGLEW -lm
+MINGW_LINKER_FLAGS = -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lGLEW -mwindows -lm
 EXE = game
 
 dev : $(OBJS)
