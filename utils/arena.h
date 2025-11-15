@@ -1,6 +1,7 @@
 #pragma once
 #define ARENA_SIZE 4092
-#include <stdint.h>
+#include <cstdint>
+#include <cstdlib>
 
 typedef struct Arena {
     char  *buffer;

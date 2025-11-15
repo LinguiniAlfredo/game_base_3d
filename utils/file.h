@@ -1,6 +1,6 @@
 #pragma once
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 char* file_read(const char *path)
 {
@@ -14,7 +14,7 @@ char* file_read(const char *path)
     long file_size = ftell(file);
     rewind(file);
 
-    char* buffer = malloc(file_size + 1);
+    char* buffer = (char *)malloc(file_size + 1);
     fread(buffer, 1, file_size, file);
 
     buffer[file_size] = '\0';

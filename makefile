@@ -1,23 +1,25 @@
-OBJS = main.c
-CC = gcc
-MINGW_CC = x86_64-w64-mingw32-gcc
-OPTIONS = -Wall -g -pedantic
-RELEASE_OPTIONS = -O2 -s -Wall -pedantic
+CC = g++
+OPTIONS = -Wall -g -pedantic -std=c++20
 LINKER_FLAGS = -lSDL2 -lGL -lGLEW -lm
-MINGW_LINKER_FLAGS = -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lGLEW -mwindows -lm
 EXE = game
 
-dev : $(OBJS)
-	$(CC) $(OPTIONS) $(OBJS) $(LINKER_FLAGS) -o $(EXE)
+SRC_DIRS = . shaders shapes
+SRCS = $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
 
-release : $(OBJS)
-	$(CC) $(RELEASE_OPTIONS) $(OBJS) $(LINKER_FLAGS) -o $(EXE)
+BUILD_DIR = ./build
+OBJ_FILES = $(patsubst %.cpp, $(BUILD_DIR)/%.o, $(SRCS))
 
-windows : $(OBJS)
-	$(MINGW_CC) $(RELEASE_OPTIONS) $(OBJS) $(MINGW_LINKER_FLAGS) -o $(EXE).exe
+$(shell mkdir -p $(BUILD_DIR) $(addprefix $(BUILD_DIR)/, $(SRC_DIRS)))
+
+all : $(OBJ_FILES)
+	$(CC) $(OPTIONS) $(OBJ_FILES) $(LINKER_FLAGS) -o $(EXE)
+
+$(BUILD_DIR)/%.o: %.cpp
+	$(CC) $(OPTIONS) -c $< -o $@
 
 clean :
-	rm -rf ./build/ ./game ./game.exe
+	rm -r $(BUILD_DIR)
+	rm -f $(EXE)
 
 count :
 	find . -type f -not -path "./.git/*" -not -path "./resources/*" -print0 | xargs -0 wc -l

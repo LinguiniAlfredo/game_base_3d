@@ -1,6 +1,6 @@
 #pragma once
 #include <SDL2/SDL.h>
-#include <stdint.h>
+#include <cstdint>
 
 typedef struct Timer {
     uint64_t start_ticks;

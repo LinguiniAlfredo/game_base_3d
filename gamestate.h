@@ -18,7 +18,6 @@ typedef struct Gamestate {
     //Entity       *entities[MAX_GAMEOBJECTS];
     Rectangle    *rectangle;
     Triangle     *triangle;
-    Arena         arena;
     Gamemode      mode;
     int           screen_width;
     int           screen_height;
