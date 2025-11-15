@@ -1,87 +1,28 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <math.h>
+#include "../shaders/shader.h"
+#include "../utils/arena.h"
 
 typedef struct Triangle {
     unsigned int VBO;
     unsigned int VAO;
-    unsigned int vertex_shader;
-    unsigned int fragment_shader;
-    unsigned int shader_program;
     float        vertices[18];
+    Shader       shader;
 } Triangle;
-
-const char *vertex_shader_source   = "#version 330 core\n"
-                                     "layout (location = 0) in vec3 aPos;\n"
-                                     "layout (location = 1) in vec3 aColor;\n"
-                                     "out vec3 ourColor;\n"
-                                     "void main()\n"
-                                     "{\n"
-                                     "   gl_Position = vec4(aPos, 1.0);\n"
-                                     "   ourColor = aColor;\n"
-                                     "}\n\0";
-
-const char *fragment_shader_source = "#version 330 core\n"
-                                     "in vec3 ourColor;\n"
-                                     "out vec4 FragColor;\n"
-                                     "void main()\n"
-                                     "{\n"
-                                     "   FragColor = vec4(ourColor, 1.0);\n"
-                                     "}\n\0";
 
 void triangle_destroy(Triangle *triangle)
 {
     glDeleteVertexArrays(1, &triangle->VAO);
     glDeleteBuffers(1, &triangle->VBO);
-    glDeleteProgram(triangle->shader_program);
+    shader_destroy(&triangle->shader);
 }
 
 void triangle_draw(Triangle *triangle)
 {
-    glUseProgram(triangle->shader_program);
+    shader_use(&triangle->shader);
     glBindVertexArray(triangle->VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-}
-
-void compileShaders(Triangle *triangle)
-{
-    triangle->vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(triangle->vertex_shader, 1, &vertex_shader_source, NULL);
-    glCompileShader(triangle->vertex_shader);
-
-    triangle->fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(triangle->fragment_shader, 1, &fragment_shader_source, NULL);
-    glCompileShader(triangle->fragment_shader);
-
-    triangle->shader_program = glCreateProgram();
-    glAttachShader(triangle->shader_program, triangle->vertex_shader);
-    glAttachShader(triangle->shader_program, triangle->fragment_shader);
-    glLinkProgram(triangle->shader_program);
-
-    int success;
-    char infoLog[512];
-    glGetShaderiv(triangle->vertex_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(triangle->vertex_shader, 512, NULL, infoLog);
-        printf("vertex shader compilation error\n%s\n", infoLog);
-    }
-
-    // Check fragment shader compilation
-    glGetShaderiv(triangle->fragment_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(triangle->fragment_shader, 512, NULL, infoLog);
-        printf("fragment shader compilation error\n%s\n", infoLog);
-    }
-
-    // Check shader program linking
-    glGetProgramiv(triangle->shader_program, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(triangle->shader_program, 512, NULL, infoLog);
-        printf("shader program linking error\n%s\n", infoLog);
-    }
-
-    glDeleteShader(triangle->vertex_shader);
-    glDeleteShader(triangle->fragment_shader);
 }
 
 void generateBuffers(Triangle *triangle)
@@ -130,6 +71,6 @@ void triangle_create(Triangle *triangle)
     triangle->vertices[16] =  0.0f;
     triangle->vertices[17] =  1.0f;
 
-    compileShaders(triangle);
+    shader_create(&triangle->shader, "shaders/vertex.vert", "shaders/fragment.frag");
     generateBuffers(triangle);
 }
