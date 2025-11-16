@@ -3,7 +3,7 @@
 #include "../gamestate.h"
 using namespace glm;
 
-Cube::Cube()
+Cube::Cube(const vec3 position)
 {
     this->vertices = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -48,6 +48,7 @@ Cube::Cube()
         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
+    this->position = position;
 
     this->shader = new Shader("shaders/cube.vert", "shaders/cube.frag");
     generate_texture();
@@ -75,6 +76,7 @@ void Cube::draw()
     mat4 model      = mat4(1.0f);
     mat4 view       = mat4(1.0f);
     mat4 projection = mat4(1.0f);
+    model      = translate(model, this->position);
     model      = rotate(model, ((float)SDL_GetTicks64() / 1000.f) * radians(50.0f), vec3(0.5f, 1.0f, 0.0f));
     view       = translate(view, vec3(0.0f, 0.0f, -3.0f));
     projection = perspective(radians(45.0f), (float)gamestate.screen_width / (float)gamestate.screen_height, 0.1f, 100.0f);

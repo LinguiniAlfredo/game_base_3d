@@ -10,7 +10,7 @@
 using namespace std;
 
 struct Cube {
-    Cube();
+    Cube(const vec3 position);
     ~Cube();
 
     unsigned int      VBO;
@@ -18,6 +18,7 @@ struct Cube {
     array<float, 180> vertices;
     Shader            *shader;
     unsigned int      texture1, texture2;
+    vec3              position;
 
     void draw();
 

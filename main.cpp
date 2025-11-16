@@ -16,8 +16,20 @@ Gamestate gamestate = {
     .mode                   = GAME,
     .screen_width           = 800,
     .screen_height          = 600,
-    .ticks_per_frame        = 1000.f / 60,
+    .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = 0
+};
+vec3 cube_positions[] = {
+    vec3( 0.0f,  0.0f,  0.0f),
+    vec3( 2.0f,  5.0f, -15.0f),
+    vec3(-1.5f, -2.2f, -2.5f),
+    vec3(-3.8f, -2.0f, -12.3f),
+    vec3( 2.4f, -0.4f, -3.5f),
+    vec3(-1.7f,  3.0f, -7.5f),
+    vec3( 1.3f, -2.0f, -2.5f),
+    vec3( 1.5f,  2.0f, -2.5f),
+    vec3( 1.5f,  0.2f, -1.5f),
+    vec3(-1.3f,  1.0f, -1.5f)
 };
 
 int initialize()
@@ -54,7 +66,9 @@ int initialize()
 
 void close_app()
 {
-    delete gamestate.cube;
+    for (int i = 0; i < 10; i++) {
+        delete gamestate.cubes[i];
+    }
 
     SDL_GL_DeleteContext(opengl_context);
     SDL_DestroyWindow(sdl_window);
@@ -98,7 +112,9 @@ void render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    gamestate.cube->draw();
+    for(int i = 0; i < 10; i++) {
+        gamestate.cubes[i]->draw();
+    }
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -151,7 +167,9 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
-        gamestate.cube = new Cube();
+        for (int i = 0; i < 10; i++) {
+            gamestate.cubes[i] = new Cube(cube_positions[i]);
+        }
         game_loop();
     }
     close_app();
