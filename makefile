@@ -3,7 +3,7 @@ OPTIONS = -Wall -g -pedantic -std=c++20
 LINKER_FLAGS = -lSDL2 -lGL -lGLEW -lm
 EXE = game
 
-SRC_DIRS = . shaders shapes
+SRC_DIRS = ./ shaders shapes
 SRCS = $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
 
 BUILD_DIR = ./build

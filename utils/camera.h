@@ -1,16 +1,10 @@
 #pragma once
-
+#include <cstdio>
+#include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 using namespace glm;
-
-enum Camera_Direction {
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT
-};
 
 const float YAW         = 90.0f;
 const float PITCH       = 0.0f;
@@ -25,6 +19,7 @@ struct Camera
     vec3 up;
     vec3 right;
     vec3 world_up;
+    vec3 trajectory;
 
     float yaw;
     float pitch;
@@ -44,6 +39,7 @@ struct Camera
         this->movement_speed = SPEED;
         this->mouse_sensitivity = SENSITIVITY;
         this->zoom = ZOOM;
+        this->trajectory = vec3(0.0f, 0.0f, 0.0f);
         update_camera_vectors();
     }
 
@@ -52,17 +48,47 @@ struct Camera
         return lookAt(this->position, this->position + this->front, this->up);
     }
 
-    void process_keyboard(Camera_Direction direction, float delta_time)
+    void process_keyboard(SDL_Event e)
+    {
+        if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
+            SDL_Keycode key = e.key.keysym.sym;
+            if (key == SDLK_w)
+                this->trajectory.z = 1;
+            if (key == SDLK_a)
+                this->trajectory.x = 1;
+            if (key == SDLK_s)
+                this->trajectory.z = -1;
+            if (key == SDLK_d)
+                this->trajectory.x = -1;
+            if (key == SDLK_q)
+                this->trajectory.y = -1;
+            if (key == SDLK_e)
+                this->trajectory.y = 1;
+        }
+        if (e.type == SDL_KEYUP && e.key.repeat == 0) {
+            SDL_Keycode key = e.key.keysym.sym;
+            if (key == SDLK_w)
+                this->trajectory.z = 0;
+            if (key == SDLK_a)
+                this->trajectory.x = 0;
+            if (key == SDLK_s)
+                this->trajectory.z = 0;
+            if (key == SDLK_d)
+                this->trajectory.x = 0;
+            if (key == SDLK_q)
+                this->trajectory.y = 0;
+            if (key == SDLK_e)
+                this->trajectory.y = 0;
+        }
+        if (this->trajectory.x != 0 || this->trajectory.y != 0 || this->trajectory.z != 0) {
+            this->trajectory = normalize(this->trajectory);
+        }
+    }
+
+    void move(float delta_time)
     {
         float velocity = this->movement_speed * delta_time;
-        if (direction == FORWARD)
-            this->position += this->front * velocity;
-        if (direction == BACKWARD)
-            this->position -= this->front * velocity;
-        if (direction == LEFT)
-            this->position -= this->right * velocity;
-        if (direction == RIGHT)
-            this->position += this->right * velocity;
+        this->position += this->trajectory * velocity;
     }
 
     void process_mouse(float x_offset, float y_offset, float delta_time, GLboolean constrain_pitch = true)

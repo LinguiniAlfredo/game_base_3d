@@ -15,8 +15,8 @@ SDL_GLContext opengl_context;
 
 Gamestate gamestate = {
     .mode                   = GAME,
-    .screen_width           = 1920,
-    .screen_height          = 1080,
+    .screen_width           = 1920/2,
+    .screen_height          = 1080/2,
     .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = 0
 };
@@ -91,7 +91,6 @@ void toggle_wireframe()
 void handle_events(float delta_time)
 {
     SDL_Event e;
-    Camera_Direction direction;
     int mouse_x, mouse_y;
 
     while (SDL_PollEvent(&e) != 0) {
@@ -106,23 +105,11 @@ void handle_events(float delta_time)
                 case SDLK_F1:
                     toggle_wireframe();
                     break;
-                case SDLK_w:
-                    direction = FORWARD;
-                    break;
-                case SDLK_a:
-                    direction = LEFT;
-                    break;
-                case SDLK_s:
-                    direction = BACKWARD;
-                    break;
-                case SDLK_d:
-                    direction = RIGHT;
-                    break;
             }
         }
+        gamestate.camera->process_keyboard(e);
     }
-    gamestate.camera->process_keyboard(direction, delta_time);
-
+    gamestate.camera->move(delta_time);
     SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
     gamestate.camera->process_mouse((float)mouse_x, -(float)mouse_y, delta_time);
 }
@@ -179,7 +166,7 @@ void game_loop()
         if (fps > 0)
             delta_time = 1 / fps;
         
-        printf("FPS: %f\n", fps);
+        //printf("FPS: %f\n", fps);
         timer_start(&fps_cap_timer);
     }
 }
@@ -187,7 +174,7 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
-        gamestate.camera = new Camera();
+        gamestate.camera = new Camera(vec3(0.0f, 0.0f, -20.0f));
         for (int i = 0; i < 10; i++) {
             gamestate.cubes[i] = new Cube(cube_positions[i]);
         }
