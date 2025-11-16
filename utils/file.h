@@ -22,8 +22,3 @@ char* file_read(const char *path)
     fclose(file);
     return buffer;
 }
-
-void file_write()
-{
-
-}

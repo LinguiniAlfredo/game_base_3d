@@ -7,7 +7,7 @@
 #include "utils/stb_image.h"
 #include "utils/timer.h"
 #include "gamestate.h"
-#include "shapes/rectangle.h"
+#include "shapes/cube.h"
 
 SDL_Window   *sdl_window = NULL;
 SDL_GLContext opengl_context;
@@ -46,6 +46,7 @@ int initialize()
         return 1;
     }
 
+    glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, gamestate.screen_width, gamestate.screen_height);
 
     return 0;
@@ -53,8 +54,7 @@ int initialize()
 
 void close_app()
 {
-    //delete gamestate.triangle;
-    delete gamestate.rectangle;
+    delete gamestate.cube;
 
     SDL_GL_DeleteContext(opengl_context);
     SDL_DestroyWindow(sdl_window);
@@ -96,10 +96,9 @@ void handle_events()
 void render()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //gamestate.triangle->draw();
-    gamestate.rectangle->draw();
+    gamestate.cube->draw();
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -152,12 +151,7 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
-        //Triangle *triangle = (Triangle *)arena_alloc(&gamestate.arena, sizeof(Triangle));
-        //triangle_create(triangle);
-        //gamestate.triangle = triangle;
-
-        gamestate.rectangle = new Rectangle();
-
+        gamestate.cube = new Cube();
         game_loop();
     }
     close_app();

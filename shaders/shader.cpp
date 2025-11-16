@@ -1,6 +1,4 @@
 #include "shader.h"
-#include <GL/glew.h>
-#include <cstdio>
 #include "../utils/file.h"
 
 Shader::Shader(const char *vertex_path, const char *fragment_path)
@@ -58,4 +56,15 @@ Shader::~Shader()
 void Shader::use()
 {
     glUseProgram(this->id);
+}
+
+void Shader::set_int(const string &name, int value) const
+{
+    glUniform1i(glGetUniformLocation(this->id, name.c_str()), value);
+}
+
+void Shader::set_mat4(const string &name, mat4 value) const
+{
+    unsigned int location = glGetUniformLocation(this->id, name.c_str());
+    glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(value));
 }

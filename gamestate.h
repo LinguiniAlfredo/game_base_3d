@@ -4,6 +4,7 @@
 
 typedef struct Triangle Triangle;
 typedef struct Rectangle Rectangle;
+typedef struct Cube Cube;
 
 typedef enum {
     MENU,
@@ -16,8 +17,9 @@ typedef enum {
 
 typedef struct Gamestate {
     //Entity       *entities[MAX_GAMEOBJECTS];
-    Rectangle    *rectangle;
-    Triangle     *triangle;
+    Cube          *cube;
+    Rectangle     *rectangle;
+    Triangle      *triangle;
     Gamemode      mode;
     int           screen_width;
     int           screen_height;
