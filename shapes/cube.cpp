@@ -1,6 +1,7 @@
 #include "cube.h"
 #include "../utils/stb_image.h"
 #include "../gamestate.h"
+#include "../utils/camera.h"
 using namespace glm;
 
 Cube::Cube(const vec3 position)
@@ -73,12 +74,13 @@ void Cube::draw()
     this->shader->set_int("texture1", 0);
     this->shader->set_int("texture2", 1);
 
-    mat4 model      = mat4(1.0f);
-    mat4 view       = mat4(1.0f);
-    mat4 projection = mat4(1.0f);
+    mat4 model = mat4(1.0f);
     model      = translate(model, this->position);
     model      = rotate(model, ((float)SDL_GetTicks64() / 1000.f) * radians(50.0f), vec3(0.5f, 1.0f, 0.0f));
-    view       = translate(view, vec3(0.0f, 0.0f, -3.0f));
+    
+    mat4 view  = gamestate.camera->get_view_matrix();
+
+    mat4 projection = mat4(1.0f);
     projection = perspective(radians(45.0f), (float)gamestate.screen_width / (float)gamestate.screen_height, 0.1f, 100.0f);
 
     this->shader->set_mat4("model", model);

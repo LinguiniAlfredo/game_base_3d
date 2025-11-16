@@ -7,6 +7,7 @@
 #include "utils/stb_image.h"
 #include "utils/timer.h"
 #include "gamestate.h"
+#include "utils/camera.h"
 #include "shapes/cube.h"
 
 SDL_Window   *sdl_window = NULL;
@@ -14,11 +15,12 @@ SDL_GLContext opengl_context;
 
 Gamestate gamestate = {
     .mode                   = GAME,
-    .screen_width           = 800,
-    .screen_height          = 600,
+    .screen_width           = 1920,
+    .screen_height          = 1080,
     .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = 0
 };
+
 vec3 cube_positions[] = {
     vec3( 0.0f,  0.0f,  0.0f),
     vec3( 2.0f,  5.0f, -15.0f),
@@ -86,9 +88,11 @@ void toggle_wireframe()
     }
 }
 
-void handle_events()
+void handle_events(float delta_time)
 {
     SDL_Event e;
+    Camera_Direction direction;
+    int mouse_x, mouse_y;
 
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT)
@@ -102,9 +106,25 @@ void handle_events()
                 case SDLK_F1:
                     toggle_wireframe();
                     break;
+                case SDLK_w:
+                    direction = FORWARD;
+                    break;
+                case SDLK_a:
+                    direction = LEFT;
+                    break;
+                case SDLK_s:
+                    direction = BACKWARD;
+                    break;
+                case SDLK_d:
+                    direction = RIGHT;
+                    break;
             }
         }
     }
+    gamestate.camera->process_keyboard(direction, delta_time);
+
+    SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+    gamestate.camera->process_mouse((float)mouse_x, -(float)mouse_y, delta_time);
 }
 
 void render()
@@ -125,7 +145,7 @@ void game_loop()
     Timer fps_cap_timer;
     uint64_t current_frame = 0;
     float fps = 0;
-    //float delta_time = 0;
+    float delta_time = 0;
 
     timer_start(&total_timer);
     timer_start(&fps_cap_timer);
@@ -134,7 +154,7 @@ void game_loop()
         fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         current_frame++;
 
-        handle_events();
+        handle_events(delta_time);
 
         switch (gamestate.mode) {
             case MENU:
@@ -156,8 +176,8 @@ void game_loop()
         if (ticks < gamestate.ticks_per_frame)
             SDL_Delay(gamestate.ticks_per_frame - ticks);
 
-        //if (fps > 0)
-        //    delta_time = 1 / fps;
+        if (fps > 0)
+            delta_time = 1 / fps;
         
         printf("FPS: %f\n", fps);
         timer_start(&fps_cap_timer);
@@ -167,6 +187,7 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
+        gamestate.camera = new Camera();
         for (int i = 0; i < 10; i++) {
             gamestate.cubes[i] = new Cube(cube_positions[i]);
         }

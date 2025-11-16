@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 typedef struct Cube Cube;
+typedef struct Camera Camera;
 
 typedef enum {
     MENU,
@@ -15,6 +16,7 @@ typedef enum {
 
 typedef struct Gamestate {
     Cube            *cubes[10];
+    Camera          *camera;
     Gamemode        mode;
     int             screen_width;
     int             screen_height;
