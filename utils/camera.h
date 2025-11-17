@@ -20,6 +20,7 @@ struct Camera
     vec3 right;
     vec3 world_up;
     vec3 trajectory;
+    vec3 input_vector;
 
     float yaw;
     float pitch;
@@ -40,6 +41,7 @@ struct Camera
         this->mouse_sensitivity = SENSITIVITY;
         this->zoom = ZOOM;
         this->trajectory = vec3(0.0f, 0.0f, 0.0f);
+        this->input_vector = vec3(0.0f, 0.0f, 0.0f);
         update_camera_vectors();
     }
 
@@ -53,42 +55,41 @@ struct Camera
         if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
             SDL_Keycode key = e.key.keysym.sym;
             if (key == SDLK_w)
-                this->trajectory.z = 1;
+                this->input_vector.z = 1;
             if (key == SDLK_a)
-                this->trajectory.x = 1;
+                this->input_vector.x = 1;
             if (key == SDLK_s)
-                this->trajectory.z = -1;
+                this->input_vector.z = -1;
             if (key == SDLK_d)
-                this->trajectory.x = -1;
+                this->input_vector.x = -1;
             if (key == SDLK_q)
-                this->trajectory.y = -1;
+                this->input_vector.y = -1;
             if (key == SDLK_e)
-                this->trajectory.y = 1;
+                this->input_vector.y = 1;
         }
         if (e.type == SDL_KEYUP && e.key.repeat == 0) {
             SDL_Keycode key = e.key.keysym.sym;
             if (key == SDLK_w)
-                this->trajectory.z = 0;
+                this->input_vector.z = 0;
             if (key == SDLK_a)
-                this->trajectory.x = 0;
+                this->input_vector.x = 0;
             if (key == SDLK_s)
-                this->trajectory.z = 0;
+                this->input_vector.z = 0;
             if (key == SDLK_d)
-                this->trajectory.x = 0;
+                this->input_vector.x = 0;
             if (key == SDLK_q)
-                this->trajectory.y = 0;
+                this->input_vector.y = 0;
             if (key == SDLK_e)
-                this->trajectory.y = 0;
+                this->input_vector.y = 0;
         }
-        if (this->trajectory.x != 0 || this->trajectory.y != 0 || this->trajectory.z != 0) {
-            this->trajectory = normalize(this->trajectory);
+        if (this->input_vector.x != 0 || this->input_vector.y != 0 || this->input_vector.z != 0) {
+            this->input_vector = normalize(this->input_vector);
         }
     }
 
     void move(float delta_time)
     {
-        float velocity = this->movement_speed * delta_time;
-        this->position += this->trajectory * velocity;
+        this->position += this->trajectory * this->movement_speed * delta_time;
     }
 
     void process_mouse(float x_offset, float y_offset, float delta_time, GLboolean constrain_pitch = true)
@@ -128,5 +129,6 @@ private:
         this->front = normalize(front);
         this->right = normalize(cross(this->front, this->world_up));
         this->up    = normalize(cross(this->right, this->front));
+        this->trajectory = this->input_vector.x * -this->right + this->input_vector.y * this->up + this->input_vector.z * this->front;
     }
 };

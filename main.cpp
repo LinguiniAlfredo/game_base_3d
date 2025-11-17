@@ -15,8 +15,8 @@ SDL_GLContext opengl_context;
 
 Gamestate gamestate = {
     .mode                   = GAME,
-    .screen_width           = 1920/2,
-    .screen_height          = 1080/2,
+    .screen_width           = 1920,
+    .screen_height          = 1080,
     .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = 0
 };
@@ -59,6 +59,8 @@ int initialize()
         printf("glew initialization failed... \n");
         return 1;
     }
+
+    SDL_ShowCursor(SDL_DISABLE);
 
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, gamestate.screen_width, gamestate.screen_height);
@@ -109,9 +111,10 @@ void handle_events(float delta_time)
         }
         gamestate.camera->process_keyboard(e);
     }
-    gamestate.camera->move(delta_time);
     SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
     gamestate.camera->process_mouse((float)mouse_x, -(float)mouse_y, delta_time);
+
+    gamestate.camera->move(delta_time);
 }
 
 void render()
