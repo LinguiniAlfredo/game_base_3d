@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-char* file_read(const char *path)
+inline char* file_read(const char *path)
 {
     FILE *file = fopen(path, "rb");
     if (!file) {

@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <math.h>
-#include "../shaders/shader.h"
+#include "../utils/shader.h"
 #include "../utils/arena.h"
 
 typedef struct Triangle {
