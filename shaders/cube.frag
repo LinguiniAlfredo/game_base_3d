@@ -17,6 +17,7 @@ void main()
     vec3 light_dir = normalize(light_pos - FragPos);
     float diff = max(dot(norm, light_dir), 0.0);
     vec3 diffuse = diff * light_color;
+
     vec3 result = (ambient + diffuse) * cube_color;
 
     FragColor = vec4(result, 1.0);

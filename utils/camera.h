@@ -66,6 +66,8 @@ struct Camera
                 this->input_vector.y = -1;
             if (key == SDLK_e)
                 this->input_vector.y = 1;
+            if (key == SDLK_LSHIFT)
+                this->movement_speed = 10.0f;
         }
         if (e.type == SDL_KEYUP && e.key.repeat == 0) {
             SDL_Keycode key = e.key.keysym.sym;
@@ -81,6 +83,8 @@ struct Camera
                 this->input_vector.y = 0;
             if (key == SDLK_e)
                 this->input_vector.y = 0;
+            if (key == SDLK_LSHIFT)
+                this->movement_speed = 2.5f;
         }
         if (this->input_vector.x != 0 || this->input_vector.y != 0 || this->input_vector.z != 0) {
             this->input_vector = normalize(this->input_vector);
