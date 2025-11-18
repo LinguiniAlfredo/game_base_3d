@@ -67,13 +67,14 @@ Cube::~Cube()
 void Cube::draw()
 {
     this->shader->use();
+    this->shader->set_vec3("camera_pos", gamestate.camera->position);
     this->shader->set_vec3("light_pos", gamestate.light_cube->position);
     this->shader->set_vec3("light_color", vec3(1.0f, 1.0f, 1.0f));
     this->shader->set_vec3("cube_color", vec3(1.0f, 0.5f, 0.31f));
 
     mat4 model = mat4(1.0f);
     model      = translate(model, this->position);
-    model      = rotate(model, ((float)SDL_GetTicks64() / 1000.f) * radians(50.0f), vec3(0.5f, 1.0f, 0.0f));
+    //model      = rotate(model, ((float)SDL_GetTicks64() / 1000.f) * radians(50.0f), vec3(0.5f, 1.0f, 0.0f));
     
     mat4 view  = gamestate.camera->get_view_matrix();
 

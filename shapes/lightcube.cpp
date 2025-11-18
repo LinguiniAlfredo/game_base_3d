@@ -66,9 +66,9 @@ void LightCube::draw()
 {
     this->shader->use();
 
-    mat4 model = mat4(1.0f);
-    model      = translate(model, this->position);
-    
+    mat4 model     = mat4(1.0f);
+    model          = translate(model, this->position);
+ 
     mat4 view  = gamestate.camera->get_view_matrix();
 
     mat4 projection = mat4(1.0f);
