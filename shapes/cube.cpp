@@ -52,8 +52,8 @@ Cube::Cube(const vec3 position)
     this->position = position;
 
     this->shader = new Shader("shaders/cube.vert", "shaders/cube.frag");
-    generate_texture();
     generate_arrays();
+    // generate_texture();
 }
 
 Cube::~Cube()
@@ -65,14 +65,9 @@ Cube::~Cube()
 
 void Cube::draw()
 {
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, this->texture1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, this->texture2);
-
     this->shader->use();
-    this->shader->set_int("texture1", 0);
-    this->shader->set_int("texture2", 1);
+    this->shader->set_vec3("light_color", vec3(1.0f, 1.0f, 1.0f));
+    this->shader->set_vec3("cube_color", vec3(1.0f, 0.5f, 0.31f));
 
     mat4 model = mat4(1.0f);
     model      = translate(model, this->position);

@@ -75,6 +75,12 @@ struct Shader {
         glUniform1i(glGetUniformLocation(this->id, name.c_str()), value);
     }
 
+    void set_vec3(const string &name, vec3 value) const
+    {
+        unsigned int location = glGetUniformLocation(this->id, name.c_str());
+        glUniform3fv(location, 1, value_ptr(value));
+    }
+
     void set_mat4(const string &name, mat4 value) const
     {
         unsigned int location = glGetUniformLocation(this->id, name.c_str());
