@@ -15,7 +15,7 @@ struct LightCube {
 
     unsigned int      VBO;
     unsigned int      VAO;
-    array<float, 108> vertices;
+    array<float, 360> vertices;
     Shader            *shader;
     vec3              position;
 

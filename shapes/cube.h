@@ -15,7 +15,7 @@ struct Cube {
 
     unsigned int      VBO;
     unsigned int      VAO;
-    array<float, 180> vertices;
+    array<float, 360> vertices;
     Shader            *shader;
     unsigned int      texture1, texture2;
     vec3              position;
