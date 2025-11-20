@@ -10,6 +10,7 @@
 #include "utils/camera.h"
 #include "shapes/cube.h"
 #include "shapes/lightcube.h"
+#include "entities/backpack.h"
 
 SDL_Window   *sdl_window = NULL;
 SDL_GLContext opengl_context;
@@ -75,6 +76,7 @@ void close_app()
         delete gamestate.cubes[i];
     }
     delete gamestate.light_cube;
+    delete gamestate.backpack;
 
     SDL_GL_DeleteContext(opengl_context);
     SDL_DestroyWindow(sdl_window);
@@ -128,6 +130,7 @@ void render()
         gamestate.cubes[i]->draw();
     }
     gamestate.light_cube->draw();
+    gamestate.backpack->draw();
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -185,6 +188,7 @@ int main(int argc, char **argv)
             gamestate.cubes[i] = new Cube(cube_positions[i]);
         }
         gamestate.light_cube = new LightCube(vec3(3.2f, 5.0f, -5.0f));
+        gamestate.backpack = new Backpack(vec3(0.0f, 0.0f, 0.0f));
         game_loop();
     }
     close_app();

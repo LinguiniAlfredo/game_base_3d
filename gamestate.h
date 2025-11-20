@@ -5,6 +5,7 @@
 typedef struct Cube Cube;
 typedef struct Camera Camera;
 typedef struct LightCube LightCube;
+typedef struct Backpack Backpack;
 
 typedef enum {
     MENU,
@@ -19,6 +20,7 @@ typedef struct Gamestate {
     Cube            *cubes[10];
     LightCube       *light_cube;
     Camera          *camera;
+    Backpack        *backpack;
     Gamemode        mode;
     int             screen_width;
     int             screen_height;

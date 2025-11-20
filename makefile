@@ -1,9 +1,9 @@
 CC = g++
 OPTIONS = -Wall -g -pedantic -std=c++20
-LINKER_FLAGS = -lSDL2 -lGL -lGLEW -lm
+LINKER_FLAGS = -lSDL2 -lGL -lGLEW -lm -lassimp
 EXE = game
 
-SRC_DIRS = ./ shaders shapes
+SRC_DIRS = ./ shaders shapes entities
 SRCS = $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
 
 BUILD_DIR = ./build
