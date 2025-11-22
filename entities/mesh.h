@@ -34,14 +34,8 @@ struct Mesh
 
         setup_mesh();
     }
-    ~Mesh()
-    {
-        glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &VBO);
-        glDeleteBuffers(1, &EBO);
-    }
 
-    void draw(Shader *shader, vec3 position)
+    void draw(Shader *shader, vec3 position, vec3 scalar)
     {
         shader->use();
         shader->set_vec3("camera_pos",  gamestate.camera->position);
@@ -51,6 +45,8 @@ struct Mesh
 
         mat4 mat_model = mat4(1.0f);
         mat_model = translate(mat_model, position);
+        mat_model = scale(mat_model, scalar);
+        mat_model = rotate(mat_model, SDL_GetTicks64() / 1000.f, vec3(0.0f, 1.0f, 0.0f));
 
         mat4 mat_view = gamestate.camera->get_view_matrix();
 
@@ -62,7 +58,7 @@ struct Mesh
         shader->set_mat4("projection", mat_proj);
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
 
@@ -74,18 +70,17 @@ private:
         glGenBuffers(1, &EBO);
 
         glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-        glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
-
-        glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
     }

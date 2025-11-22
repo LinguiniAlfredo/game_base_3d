@@ -10,30 +10,31 @@
 #include "utils/camera.h"
 #include "shapes/cube.h"
 #include "shapes/lightcube.h"
-#include "entities/backpack.h"
+#include "entities/entity.h"
+#include <vector>
 
-SDL_Window   *sdl_window = NULL;
+SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
 
 Gamestate gamestate = {
     .mode                   = GAME,
-    .screen_width           = 1920,
-    .screen_height          = 1080,
+    .screen_width           = 1920/2,
+    .screen_height          = 1080/2,
     .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = 0
 };
 
 vec3 cube_positions[] = {
-    vec3( 0.0f,  0.0f,  0.0f),
+    vec3( 1.0f,  2.0f,  30.0f),
     vec3( 2.0f,  5.0f, -15.0f),
-    vec3(-1.5f, -2.2f, -2.5f),
-    vec3(-3.8f, -2.0f, -12.3f),
-    vec3( 2.4f, -0.4f, -3.5f),
-    vec3(-1.7f,  3.0f, -7.5f),
-    vec3( 1.3f, -2.0f, -2.5f),
-    vec3( 1.5f,  2.0f, -2.5f),
-    vec3( 1.5f,  0.2f, -1.5f),
-    vec3(-1.3f,  1.0f, -1.5f)
+    vec3(-3.5f, -2.2f, -2.5f),
+    vec3(-4.8f, -2.0f, -12.3f),
+    vec3( 5.4f, -0.4f, -3.5f),
+    vec3(-6.7f,  3.0f, -7.5f),
+    vec3( 7.3f, -2.0f, -2.5f),
+    vec3( 8.5f,  2.0f, -2.5f),
+    vec3( 9.5f,  0.2f, -1.5f),
+    vec3(-10.3f, 1.0f, -1.5f)
 };
 
 int initialize()
@@ -63,6 +64,8 @@ int initialize()
     }
 
     SDL_ShowCursor(SDL_DISABLE);
+    SDL_SetWindowGrab(sdl_window, SDL_TRUE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, gamestate.screen_width, gamestate.screen_height);
@@ -72,11 +75,14 @@ int initialize()
 
 void close_app()
 {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1000; i++) {
         delete gamestate.cubes[i];
     }
     delete gamestate.light_cube;
-    delete gamestate.backpack;
+
+    for (unsigned int i = 0; i < gamestate.entities.size(); i++) {
+        delete gamestate.entities[i];
+    }
 
     SDL_GL_DeleteContext(opengl_context);
     SDL_DestroyWindow(sdl_window);
@@ -126,11 +132,15 @@ void render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for(int i = 0; i < 10; i++) {
+    gamestate.light_cube->draw();
+
+    for(int i = 0; i < 1000; i++) {
         gamestate.cubes[i]->draw();
     }
-    gamestate.light_cube->draw();
-    gamestate.backpack->draw();
+
+    for(unsigned int i = 0; i < gamestate.entities.size(); i++) {
+        gamestate.entities[i]->draw();
+    }
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -175,7 +185,7 @@ void game_loop()
         if (fps > 0)
             delta_time = 1 / fps;
         
-        //printf("FPS: %f\n", fps);
+        printf("FPS: %f\n", fps);
         timer_start(&fps_cap_timer);
     }
 }
@@ -184,11 +194,13 @@ int main(int argc, char **argv)
 {
     if (initialize() == 0) {
         gamestate.camera = new Camera(vec3(0.0f, 0.0f, -20.0f));
-        for (int i = 0; i < 10; i++) {
-            gamestate.cubes[i] = new Cube(cube_positions[i]);
+        for (int i = 0; i < 1000; i++) {
+            gamestate.cubes.push_back(new Cube(cube_positions[i % 10] * (float)(i+1)));
         }
-        gamestate.light_cube = new LightCube(vec3(3.2f, 5.0f, -5.0f));
-        gamestate.backpack = new Backpack(vec3(0.0f, 0.0f, 0.0f));
+        gamestate.light_cube = new LightCube(vec3(0.0f, 0.0f, 0.0f));
+        gamestate.entities.push_back(new Entity("resources/models/backpack.obj", vec3(0.0f, 0.0f, 5.0f)));
+        gamestate.entities.push_back(new Entity("resources/models/rubik.obj", vec3(5.0f, 0.0f, 5.0f), 0.1f));
+        gamestate.entities.push_back(new Entity("resources/models/sphere.obj", vec3(-5.0f, 0.0f, 5.0f)));
         game_loop();
     }
     close_app();

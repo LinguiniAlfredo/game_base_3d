@@ -19,15 +19,24 @@ struct Model {
         loadModel(path);
     }
 
-    void draw(Shader *shader, vec3 position)
+    ~Model()
+    {
+        for (unsigned int i = 0; i < meshes.size(); i++) {
+            glDeleteVertexArrays(1, &meshes[i].VAO);
+            glDeleteBuffers(1, &meshes[i].VBO);
+            glDeleteBuffers(1, &meshes[i].EBO);
+        }
+    }
+
+    void draw(Shader *shader, vec3 position, vec3 scale)
     {
         for (unsigned int i = 0; i < this->meshes.size(); i++) {
-            this->meshes[i].draw(shader, position);
+            this->meshes[i].draw(shader, position, scale);
         }
     }
 
 private:
-    void loadModel(string const &path)
+    void loadModel(const char *path)
     {
         Assimp::Importer importer;
         const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -41,12 +50,31 @@ private:
 
     void process_node(aiNode *node, const aiScene *scene)
     {
-        for(unsigned int i = 0; i < node->mNumChildren; i++) {
-            aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-            this->meshes.push_back(process_mesh(mesh, scene));
+        if (!node) {
+            printf("found null node...skipping\n");
+            return;
+        }
+        for(unsigned int i = 0; i < node->mNumMeshes; i++) {
+            if (node->mMeshes[i] < scene->mNumMeshes) {
+                aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
+                if (!mesh) {
+                    printf("found null mesh...skipping\n");
+                    return;
+                }
+                this->meshes.push_back(process_mesh(mesh, scene));
+            } else {
+                printf("invalid mesh id...\n");
+            }
+        }
+        if (node->mNumChildren == 0) {
+            return;
         }
         for (unsigned int i = 0; i < node->mNumChildren; i++) {
-            process_node(node->mChildren[i], scene);
+            if (node->mChildren[i]) {
+                process_node(node->mChildren[i], scene);
+            } else {
+                printf("null child found...skipping\n");
+            }
         }
     }
 

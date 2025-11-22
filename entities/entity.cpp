@@ -1,4 +1,4 @@
-#include "backpack.h"
+#include "entity.h"
 #include "model.h"
 #include "../utils/shader.h"
 #include <glm/glm.hpp>
@@ -6,19 +6,21 @@
 #include <glm/gtc/type_ptr.hpp>
 using namespace glm;
 
-Backpack::Backpack(const vec3 position)
+Entity::Entity(const char *filename, const vec3 position, const float scale)
 {
     this->position = position;
+    this->scale    = vec3(scale, scale, scale);
     this->shader   = new Shader("shaders/cube.vert", "shaders/cube.frag");
-    this->model    = new Model("resources/models/backpack.obj");
+    this->model    = new Model(filename);
 }
 
-Backpack::~Backpack()
+Entity::~Entity()
 {
     delete this->shader;
+    delete this->model;
 }
 
-void Backpack::draw()
+void Entity::draw()
 {
-    model->draw(this->shader, this->position);
+    model->draw(this->shader, this->position, this->scale);
 }

@@ -1,11 +1,12 @@
 #pragma once
 #define MAX_GAMEOBJECTS 50
 #include <SDL2/SDL.h>
+#include <vector>
 
 typedef struct Cube Cube;
 typedef struct Camera Camera;
 typedef struct LightCube LightCube;
-typedef struct Backpack Backpack;
+typedef struct Entity Entity;
 
 typedef enum {
     MENU,
@@ -16,11 +17,13 @@ typedef enum {
     QUIT
 } Gamemode;
 
+using namespace std;
+
 typedef struct Gamestate {
-    Cube            *cubes[10];
+    vector<Cube*>   cubes;
     LightCube       *light_cube;
     Camera          *camera;
-    Backpack        *backpack;
+    vector<Entity*> entities;
     Gamemode        mode;
     int             screen_width;
     int             screen_height;

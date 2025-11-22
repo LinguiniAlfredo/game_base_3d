@@ -14,5 +14,7 @@ void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
     frag_pos = vec3(model * vec4(aPos, 1.0));
-    normal = aNormal;
+    
+    mat3 normal_matrix = inverse(transpose(mat3(model))); // inverse transpose is magic to keep normals on surface
+    normal = normalize(normal_matrix * aNormal);
 }
