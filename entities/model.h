@@ -14,24 +14,24 @@ using namespace glm;
 struct Model {
     vector<Mesh>    meshes;
 
-    Model(const char *path)
+    explicit Model(const char *path)
     {
         loadModel(path);
     }
 
     ~Model()
     {
-        for (unsigned int i = 0; i < meshes.size(); i++) {
-            glDeleteVertexArrays(1, &meshes[i].VAO);
-            glDeleteBuffers(1, &meshes[i].VBO);
-            glDeleteBuffers(1, &meshes[i].EBO);
+        for (Mesh &mesh : meshes) {
+            glDeleteVertexArrays(1, &mesh.VAO);
+            glDeleteBuffers(1, &mesh.VBO);
+            glDeleteBuffers(1, &mesh.EBO);
         }
     }
 
-    void draw(Shader *shader, vec3 position, quat orientation, vec3 scale)
+    void draw(Shader *shader, const vec3 position, const quat orientation, const vec3 scale)
     {
-        for (unsigned int i = 0; i < this->meshes.size(); i++) {
-            this->meshes[i].draw(shader, position, orientation, scale);
+        for (Mesh &mesh : this->meshes) {
+            mesh.draw(shader, position, orientation, scale);
         }
     }
 
@@ -53,7 +53,7 @@ private:
         process_node(scene->mRootNode, scene);
     }
 
-    void process_node(aiNode *node, const aiScene *scene)
+    void process_node(const aiNode *node, const aiScene *scene)
     {
         if (!node) {
             printf("found null node...skipping\n");
@@ -83,13 +83,13 @@ private:
         }
     }
 
-    Mesh process_mesh(aiMesh *mesh, const aiScene *scene)
+    static Mesh process_mesh(const aiMesh *mesh, const aiScene *scene)
     {
         vector<Vertex>       vertices;
         vector<unsigned int> indices;
 
         for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-            Vertex vertex;
+            Vertex vertex{};
             vec3 vector;
             vector.x = mesh->mVertices[i].x;
             vector.y = mesh->mVertices[i].y;

@@ -11,10 +11,16 @@
 #include "shapes/cube.h"
 #include "shapes/lightcube.h"
 #include "entities/entity.h"
+#include "entities/floor.h"
 #include <vector>
 
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
+
+// TODO - multiple light types, PointLight, Spotlight etc, put all of them in context.lights
+//      - have shader handle direction to all lights in scene
+//      - give player gravity and interact with floor
+//      - do i need to store shader pointers or can i use the stack
 
 Context context = {
     .mode                   = GAME,
@@ -29,19 +35,13 @@ vec3 cube_positions[] = {
     vec3(0.0f, 1.0f, 0.0f),
     vec3(0.0f, 0.0f, 1.0f),
     vec3(-1.0f, 0.0f, 0.0f),
-    vec3(0.0f, -1.0f, 0.0f),
     vec3(0.0f, 0.0f, -1.0f),
     vec3(1.0f, 1.0f, 0.0f),
     vec3(-1.0f, 1.0f, 0.0f),
-    vec3(1.0f, -1.0f, 0.0f),
-    vec3(-1.0f, -1.0f, 0.0f),
     vec3(1.0f, 1.0f, 1.0f),
     vec3(-1.0f, 1.0f, 1.0f),
-    vec3(1.0f, -1.0f, 1.0f),
-    vec3(-1.0f, -1.0f, 1.0f),
     vec3(1.0f, 1.0f, -1.0f),
     vec3(-1.0f, 1.0f, -1.0f),
-    vec3(1.0f, -1.0f, -1.0f),
     vec3(-1.0f, -1.0f, -1.0f),
 };
 
@@ -88,6 +88,8 @@ void close_app()
     for (unsigned int i = 0; i < context.entities.size(); i++) {
         delete context.entities[i];
     }
+
+    delete context.floor;
 
     SDL_GL_DeleteContext(opengl_context);
     SDL_DestroyWindow(sdl_window);
@@ -142,6 +144,8 @@ void render()
     for(unsigned int i = 0; i < context.entities.size(); i++) {
         context.entities[i]->draw();
     }
+
+    context.floor->draw();
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -200,24 +204,20 @@ int main(int argc, char **argv)
 
         for (int i = 0; i < 100; i++) {
             static float scale = 10.0f;
-            if (i % 18 == 0) {
+            if (i % 12 == 0) {
                 scale += 5.f;
             }
-            context.entities.push_back(new Entity("resources/models/sphere.obj", cube_positions[i % 18] * scale));
+            context.entities.push_back(new Entity("resources/models/sphere.obj", cube_positions[i % 12] * scale));
         }
 
-        //context.entities.push_back(new Entity("resources/models/backpack.obj", vec3(0.0f, 0.0f, 5.0f)));
-        //context.entities.push_back(new Entity("resources/models/rubik.obj", vec3(5.0f, 0.0f, 5.0f), 0.1f));
-        //context.entities.push_back(new Entity("resources/models/sphere.obj", vec3(-5.0f, 0.0f, 5.0f)));
-        
-       // context.entities.push_back(new Entity("resources/models/mario.fbx",
-       //                                       vec3(-5.0f, 0.0f, -1.0f),
-       //                                       quat(angleAxis(radians(-90.f), vec3(1.0f, 0.0f, 0.0f))),
-       //                                       0.02f));
+        // context.entities.push_back(new Entity("resources/models/backpack.obj", vec3(0.0f, 0.0f, 5.0f)));
+        // context.entities.push_back(new Entity("resources/models/rubik.obj", vec3(5.0f, 0.0f, 5.0f)));
 
         context.entities.push_back(new Entity("resources/models/young_link_corrected.fbx",
-                                              vec3(0.0f, 0.0f, 5.0f),
-                                              quat(angleAxis(radians(0.f), vec3(0.0f, 0.0f, 1.0f)))));
+                                              vec3(0.0f, -5.0f, 5.0f),
+                                              angleAxis(radians(90.f), vec3(0.f, 1.f, 0.f))));
+
+        context.floor = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));
 
         game_loop();
     }

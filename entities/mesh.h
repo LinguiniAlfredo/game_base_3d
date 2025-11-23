@@ -25,9 +25,9 @@ struct Mesh
 {
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
-    unsigned int         VAO, VBO, EBO;
+    unsigned int         VAO{}, VBO{}, EBO{};
 
-    Mesh(vector<Vertex> vertices, vector<unsigned int> indices)
+    Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices)
     {
         this->vertices = vertices;
         this->indices  = indices;
@@ -35,7 +35,7 @@ struct Mesh
         setup_mesh();
     }
 
-    void draw(Shader *shader, vec3 position, quat orientation, vec3 scalar)
+    void draw(Shader *shader, const vec3 position, const quat orientation, const vec3 scalar) const
     {
         shader->use();
         shader->set_vec3("camera_pos",  context.camera->position);
@@ -48,7 +48,7 @@ struct Mesh
         mat_model = mat_model * mat4_cast(orientation);
         mat_model = translate(mat_model, position);
 
-        mat_model = rotate(mat_model, SDL_GetTicks64()/1000.f, vec3(0.0f, 1.0f, 0.0f));
+        // mat_model = rotate(mat_model, SDL_GetTicks64()/1000.f, vec3(0.0f, 1.0f, 0.0f));
 
         mat4 mat_view = context.camera->get_view_matrix();
 
@@ -60,7 +60,7 @@ struct Mesh
         shader->set_mat4("projection", mat_proj);
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
     }
 
@@ -79,7 +79,7 @@ private:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)nullptr);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);

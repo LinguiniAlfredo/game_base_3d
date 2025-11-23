@@ -7,11 +7,11 @@
 #include "../context.h"
 using namespace glm;
 
-const float YAW         = 90.0f;
-const float PITCH       = 0.0f;
-const float SPEED       = 2.5f;
-const float SENSITIVITY = 0.1f;
-const float ZOOM        = 45.0f;
+constexpr float YAW         = 90.0f;
+constexpr float PITCH       = 0.0f;
+constexpr float SPEED       = 2.5f;
+constexpr float SENSITIVITY = 0.1f;
+constexpr float ZOOM        = 45.0f;
 
 struct Frustrum {
     float fov;
@@ -21,13 +21,13 @@ struct Frustrum {
 
 struct Camera
 {
-    vec3 position;
-    vec3 front;
-    vec3 up;
-    vec3 right;
-    vec3 world_up;
-    vec3 trajectory;
-    vec3 input_vector;
+    vec3 position{};
+    vec3 front{};
+    vec3 up{};
+    vec3 right{};
+    vec3 world_up{};
+    vec3 trajectory{};
+    vec3 input_vector{};
 
     float yaw;
     float pitch;
@@ -35,11 +35,11 @@ struct Camera
     float mouse_sensitivity;
     float zoom;
 
-    Frustrum frustrum;
+    Frustrum frustrum{};
  
-    Camera(vec3 position = vec3(0.0f, 0.0f, 0.0f),
-           vec3 up = vec3(0.0f, 1.0f, 0.0f),
-           float yaw = YAW, float pitch = PITCH)
+    explicit Camera(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
+           const vec3 up = vec3(0.0f, 1.0f, 0.0f),
+           const float yaw = YAW, float pitch = PITCH)
     {
         this->position = position;
         this->world_up = up;
@@ -53,27 +53,27 @@ struct Camera
         this->input_vector = vec3(0.0f, 0.0f, 0.0f);
         this->frustrum = {
             .fov    = radians(45.0f),
-            .aspect = (float)context.screen_width / (float)context.screen_height,
+            .aspect = static_cast<float>(context.screen_width) / static_cast<float>(context.screen_height),
             .near   = 0.1f,
             .far    = 1000.f
         };
         update_camera_vectors();
     }
 
-    mat4 get_view_matrix()
+    mat4 get_view_matrix() const
     {
         return lookAt(this->position, this->position + this->front, this->up);
     }
 
-    mat4 get_perspective_matrix()
+    mat4 get_perspective_matrix() const
     {
         return perspective(frustrum.fov, frustrum.aspect, frustrum.near, frustrum.far);
     }
 
-    void process_keyboard(SDL_Event e)
+    void process_keyboard(const SDL_Event &e)
     {
         if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
-            SDL_Keycode key = e.key.keysym.sym;
+            const SDL_Keycode key = e.key.keysym.sym;
             if (key == SDLK_w)
                 this->input_vector.z = 1;
             if (key == SDLK_a)
@@ -90,7 +90,7 @@ struct Camera
                 this->movement_speed = 10.0f;
         }
         if (e.type == SDL_KEYUP && e.key.repeat == 0) {
-            SDL_Keycode key = e.key.keysym.sym;
+            const SDL_Keycode key = e.key.keysym.sym;
             if (key == SDLK_w)
                 this->input_vector.z = 0;
             if (key == SDLK_a)
@@ -111,7 +111,7 @@ struct Camera
         }
     }
 
-    void move(float delta_time)
+    void move(const float delta_time)
     {
         this->position += this->trajectory * this->movement_speed * delta_time;
     }
@@ -146,11 +146,11 @@ struct Camera
 private:
     void update_camera_vectors()
     {
-        vec3 front;
-        front.x = cos(radians(this->yaw)) * cos(radians(this->pitch));
-        front.y = sin(radians(this->pitch));
-        front.z = sin(radians(yaw)) * cos(radians(this->pitch));
-        this->front = normalize(front);
+        vec3 f;
+        f.x = cos(radians(this->yaw)) * cos(radians(this->pitch));
+        f.y = sin(radians(this->pitch));
+        f.z = sin(radians(yaw)) * cos(radians(this->pitch));
+        this->front = normalize(f);
         this->right = normalize(cross(this->front, this->world_up));
         this->up    = normalize(cross(this->right, this->front));
         this->trajectory = this->input_vector.x * -this->right + this->input_vector.y * this->up + this->input_vector.z * this->front;

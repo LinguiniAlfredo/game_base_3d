@@ -3,10 +3,11 @@
 #include <SDL2/SDL.h>
 #include <vector>
 
-typedef struct Cube Cube;
-typedef struct Camera Camera;
+typedef struct Cube      Cube;
+typedef struct Camera    Camera;
 typedef struct LightCube LightCube;
-typedef struct Entity Entity;
+typedef struct Entity    Entity;
+typedef struct Floor     Floor;
 
 typedef enum {
     MENU,
@@ -24,6 +25,7 @@ typedef struct Context {
     LightCube       *light_cube;
     Camera          *camera;
     vector<Entity*> entities;
+    Floor           *floor;
     Gamemode        mode;
     int             screen_width;
     int             screen_height;
