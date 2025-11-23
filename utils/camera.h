@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "../context.h"
 using namespace glm;
 
 const float YAW         = 90.0f;
@@ -11,6 +12,12 @@ const float PITCH       = 0.0f;
 const float SPEED       = 2.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM        = 45.0f;
+
+struct Frustrum {
+    float fov;
+    float aspect;
+    float near, far;
+};
 
 struct Camera
 {
@@ -27,6 +34,8 @@ struct Camera
     float movement_speed;
     float mouse_sensitivity;
     float zoom;
+
+    Frustrum frustrum;
  
     Camera(vec3 position = vec3(0.0f, 0.0f, 0.0f),
            vec3 up = vec3(0.0f, 1.0f, 0.0f),
@@ -42,12 +51,23 @@ struct Camera
         this->zoom = ZOOM;
         this->trajectory = vec3(0.0f, 0.0f, 0.0f);
         this->input_vector = vec3(0.0f, 0.0f, 0.0f);
+        this->frustrum = {
+            .fov    = radians(45.0f),
+            .aspect = (float)context.screen_width / (float)context.screen_height,
+            .near   = 0.1f,
+            .far    = 1000.f
+        };
         update_camera_vectors();
     }
 
     mat4 get_view_matrix()
     {
         return lookAt(this->position, this->position + this->front, this->up);
+    }
+
+    mat4 get_perspective_matrix()
+    {
+        return perspective(frustrum.fov, frustrum.aspect, frustrum.near, frustrum.far);
     }
 
     void process_keyboard(SDL_Event e)

@@ -6,12 +6,13 @@
 #include <glm/gtc/type_ptr.hpp>
 using namespace glm;
 
-Entity::Entity(const char *filename, const vec3 position, const float scale)
+Entity::Entity(const char *filename, const vec3 position, const quat orientation, const float scale)
 {
-    this->position = position;
-    this->scale    = vec3(scale, scale, scale);
-    this->shader   = new Shader("shaders/cube.vert", "shaders/cube.frag");
-    this->model    = new Model(filename);
+    this->position    = position;
+    this->orientation = orientation;
+    this->scale       = vec3(scale, scale, scale);
+    this->shader      = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
+    this->model       = new Model(filename);
 }
 
 Entity::~Entity()
@@ -22,5 +23,5 @@ Entity::~Entity()
 
 void Entity::draw()
 {
-    model->draw(this->shader, this->position, this->scale);
+    model->draw(this->shader, this->position, this->orientation, this->scale);
 }

@@ -1,6 +1,6 @@
 #pragma once
 #include "../utils/shader.h"
-#include "../gamestate.h"
+#include "../context.h"
 #include "../utils/camera.h"
 #include "../shapes/lightcube.h"
 #include <glm/glm.hpp>
@@ -35,23 +35,25 @@ struct Mesh
         setup_mesh();
     }
 
-    void draw(Shader *shader, vec3 position, vec3 scalar)
+    void draw(Shader *shader, vec3 position, quat orientation, vec3 scalar)
     {
         shader->use();
-        shader->set_vec3("camera_pos",  gamestate.camera->position);
-        shader->set_vec3("light_pos",   gamestate.light_cube->position);
+        shader->set_vec3("camera_pos",  context.camera->position);
+        shader->set_vec3("light_pos",   context.light_cube->position);
         shader->set_vec3("light_color", vec3(1.0f, 1.0f, 1.0f));
         shader->set_vec3("cube_color",  vec3(1.0f, 0.5f, 0.31f));
 
         mat4 mat_model = mat4(1.0f);
-        mat_model = translate(mat_model, position);
         mat_model = scale(mat_model, scalar);
-        mat_model = rotate(mat_model, SDL_GetTicks64() / 1000.f, vec3(0.0f, 1.0f, 0.0f));
+        mat_model = mat_model * mat4_cast(orientation);
+        mat_model = translate(mat_model, position);
 
-        mat4 mat_view = gamestate.camera->get_view_matrix();
+        mat_model = rotate(mat_model, SDL_GetTicks64()/1000.f, vec3(0.0f, 1.0f, 0.0f));
+
+        mat4 mat_view = context.camera->get_view_matrix();
 
         mat4 mat_proj = mat4(1.0f);
-        mat_proj = perspective(radians(45.0f), (float)gamestate.screen_width / (float)gamestate.screen_height, 0.1f, 100.0f);
+        mat_proj = context.camera->get_perspective_matrix();
 
         shader->set_mat4("model", mat_model);
         shader->set_mat4("view", mat_view);

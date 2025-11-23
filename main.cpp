@@ -6,7 +6,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "utils/stb_image.h"
 #include "utils/timer.h"
-#include "gamestate.h"
+#include "context.h"
 #include "utils/camera.h"
 #include "shapes/cube.h"
 #include "shapes/lightcube.h"
@@ -16,7 +16,7 @@
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
 
-Gamestate gamestate = {
+Context context = {
     .mode                   = GAME,
     .screen_width           = 1920/2,
     .screen_height          = 1080/2,
@@ -25,16 +25,24 @@ Gamestate gamestate = {
 };
 
 vec3 cube_positions[] = {
-    vec3( 1.0f,  2.0f,  30.0f),
-    vec3( 2.0f,  5.0f, -15.0f),
-    vec3(-3.5f, -2.2f, -2.5f),
-    vec3(-4.8f, -2.0f, -12.3f),
-    vec3( 5.4f, -0.4f, -3.5f),
-    vec3(-6.7f,  3.0f, -7.5f),
-    vec3( 7.3f, -2.0f, -2.5f),
-    vec3( 8.5f,  2.0f, -2.5f),
-    vec3( 9.5f,  0.2f, -1.5f),
-    vec3(-10.3f, 1.0f, -1.5f)
+    vec3(1.0f, 0.0f, 0.0f),
+    vec3(0.0f, 1.0f, 0.0f),
+    vec3(0.0f, 0.0f, 1.0f),
+    vec3(-1.0f, 0.0f, 0.0f),
+    vec3(0.0f, -1.0f, 0.0f),
+    vec3(0.0f, 0.0f, -1.0f),
+    vec3(1.0f, 1.0f, 0.0f),
+    vec3(-1.0f, 1.0f, 0.0f),
+    vec3(1.0f, -1.0f, 0.0f),
+    vec3(-1.0f, -1.0f, 0.0f),
+    vec3(1.0f, 1.0f, 1.0f),
+    vec3(-1.0f, 1.0f, 1.0f),
+    vec3(1.0f, -1.0f, 1.0f),
+    vec3(-1.0f, -1.0f, 1.0f),
+    vec3(1.0f, 1.0f, -1.0f),
+    vec3(-1.0f, 1.0f, -1.0f),
+    vec3(1.0f, -1.0f, -1.0f),
+    vec3(-1.0f, -1.0f, -1.0f),
 };
 
 int initialize()
@@ -45,8 +53,8 @@ int initialize()
     }
 
     sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,
-                                SDL_WINDOWPOS_UNDEFINED, gamestate.screen_width,
-                                gamestate.screen_height, SDL_WINDOW_OPENGL);
+                                SDL_WINDOWPOS_UNDEFINED, context.screen_width,
+                                context.screen_height, SDL_WINDOW_OPENGL);
     if (sdl_window == NULL) {
         printf("window could not be created... %s\n", SDL_GetError());
         return 1;
@@ -68,20 +76,17 @@ int initialize()
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glEnable(GL_DEPTH_TEST);
-    glViewport(0, 0, gamestate.screen_width, gamestate.screen_height);
+    glViewport(0, 0, context.screen_width, context.screen_height);
 
     return 0;
 }
 
 void close_app()
 {
-    for (int i = 0; i < 1000; i++) {
-        delete gamestate.cubes[i];
-    }
-    delete gamestate.light_cube;
+    delete context.light_cube;
 
-    for (unsigned int i = 0; i < gamestate.entities.size(); i++) {
-        delete gamestate.entities[i];
+    for (unsigned int i = 0; i < context.entities.size(); i++) {
+        delete context.entities[i];
     }
 
     SDL_GL_DeleteContext(opengl_context);
@@ -92,8 +97,8 @@ void close_app()
 
 void toggle_wireframe()
 {
-    gamestate.wireframe = !gamestate.wireframe;
-    if (gamestate.wireframe) {
+    context.wireframe = !context.wireframe;
+    if (context.wireframe) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     } else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -107,24 +112,24 @@ void handle_events(float delta_time)
 
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT)
-            gamestate.mode = QUIT;
+            context.mode = QUIT;
 
         if (e.type == SDL_KEYDOWN) {
             switch (e.key.keysym.sym) {
                 case SDLK_ESCAPE:
-                    gamestate.mode = QUIT;
+                    context.mode = QUIT;
                     break;
                 case SDLK_F1:
                     toggle_wireframe();
                     break;
             }
         }
-        gamestate.camera->process_keyboard(e);
+        context.camera->process_keyboard(e);
     }
     SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
-    gamestate.camera->process_mouse((float)mouse_x, -(float)mouse_y, delta_time);
+    context.camera->process_mouse((float)mouse_x, -(float)mouse_y, delta_time);
 
-    gamestate.camera->move(delta_time);
+    context.camera->move(delta_time);
 }
 
 void render()
@@ -132,14 +137,10 @@ void render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    gamestate.light_cube->draw();
+    context.light_cube->draw();
 
-    for(int i = 0; i < 1000; i++) {
-        gamestate.cubes[i]->draw();
-    }
-
-    for(unsigned int i = 0; i < gamestate.entities.size(); i++) {
-        gamestate.entities[i]->draw();
+    for(unsigned int i = 0; i < context.entities.size(); i++) {
+        context.entities[i]->draw();
     }
 
     SDL_GL_SwapWindow(sdl_window);
@@ -156,13 +157,13 @@ void game_loop()
     timer_start(&total_timer);
     timer_start(&fps_cap_timer);
 
-    while (gamestate.mode != QUIT) {
+    while (context.mode != QUIT) {
         fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         current_frame++;
 
         handle_events(delta_time);
 
-        switch (gamestate.mode) {
+        switch (context.mode) {
             case MENU:
                 break;
             case GAME:
@@ -179,8 +180,8 @@ void game_loop()
         }
 
         int ticks = timer_get_ticks(&fps_cap_timer);
-        if (ticks < gamestate.ticks_per_frame)
-            SDL_Delay(gamestate.ticks_per_frame - ticks);
+        if (ticks < context.ticks_per_frame)
+            SDL_Delay(context.ticks_per_frame - ticks);
 
         if (fps > 0)
             delta_time = 1 / fps;
@@ -193,14 +194,31 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
-        gamestate.camera = new Camera(vec3(0.0f, 0.0f, -20.0f));
-        for (int i = 0; i < 1000; i++) {
-            gamestate.cubes.push_back(new Cube(cube_positions[i % 10] * (float)(i+1)));
+        context.camera = new Camera(vec3(0.0f, 0.0f, -5.0f));
+
+        context.light_cube = new LightCube(vec3(0.0f, 0.0f, 0.0f));
+
+        for (int i = 0; i < 100; i++) {
+            static float scale = 10.0f;
+            if (i % 18 == 0) {
+                scale += 5.f;
+            }
+            context.entities.push_back(new Entity("resources/models/sphere.obj", cube_positions[i % 18] * scale));
         }
-        gamestate.light_cube = new LightCube(vec3(0.0f, 0.0f, 0.0f));
-        gamestate.entities.push_back(new Entity("resources/models/backpack.obj", vec3(0.0f, 0.0f, 5.0f)));
-        gamestate.entities.push_back(new Entity("resources/models/rubik.obj", vec3(5.0f, 0.0f, 5.0f), 0.1f));
-        gamestate.entities.push_back(new Entity("resources/models/sphere.obj", vec3(-5.0f, 0.0f, 5.0f)));
+
+        //context.entities.push_back(new Entity("resources/models/backpack.obj", vec3(0.0f, 0.0f, 5.0f)));
+        //context.entities.push_back(new Entity("resources/models/rubik.obj", vec3(5.0f, 0.0f, 5.0f), 0.1f));
+        //context.entities.push_back(new Entity("resources/models/sphere.obj", vec3(-5.0f, 0.0f, 5.0f)));
+        
+       // context.entities.push_back(new Entity("resources/models/mario.fbx",
+       //                                       vec3(-5.0f, 0.0f, -1.0f),
+       //                                       quat(angleAxis(radians(-90.f), vec3(1.0f, 0.0f, 0.0f))),
+       //                                       0.02f));
+
+        context.entities.push_back(new Entity("resources/models/young_link_corrected.fbx",
+                                              vec3(0.0f, 0.0f, 5.0f),
+                                              quat(angleAxis(radians(0.f), vec3(0.0f, 0.0f, 1.0f)))));
+
         game_loop();
     }
     close_app();

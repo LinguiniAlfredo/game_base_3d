@@ -19,7 +19,7 @@ typedef enum {
 
 using namespace std;
 
-typedef struct Gamestate {
+typedef struct Context {
     vector<Cube*>   cubes;
     LightCube       *light_cube;
     Camera          *camera;
@@ -29,6 +29,6 @@ typedef struct Gamestate {
     int             screen_height;
     float           ticks_per_frame;
     int             wireframe;
-} Gamestate;
+} Context;
 
-extern Gamestate gamestate;
+extern Context context;

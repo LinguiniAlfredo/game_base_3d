@@ -1,6 +1,6 @@
 #include "lightcube.h"
 #include "../utils/stb_image.h"
-#include "../gamestate.h"
+#include "../context.h"
 #include "../utils/camera.h"
 using namespace glm;
 
@@ -69,10 +69,10 @@ void LightCube::draw()
     mat4 model     = mat4(1.0f);
     model          = translate(model, this->position);
  
-    mat4 view  = gamestate.camera->get_view_matrix();
+    mat4 view  = context.camera->get_view_matrix();
 
     mat4 projection = mat4(1.0f);
-    projection = perspective(radians(45.0f), (float)gamestate.screen_width / (float)gamestate.screen_height, 0.1f, 100.0f);
+    projection = perspective(radians(45.0f), (float)context.screen_width / (float)context.screen_height, 0.1f, 10000.0f);
 
     this->shader->set_mat4("model", model);
     this->shader->set_mat4("view", view);

@@ -1,6 +1,6 @@
 #include "cube.h"
 #include "../utils/stb_image.h"
-#include "../gamestate.h"
+#include "../context.h"
 #include "../utils/camera.h"
 #include "lightcube.h"
 using namespace glm;
@@ -52,7 +52,7 @@ Cube::Cube(const vec3 position)
     };
     this->position = position;
 
-    this->shader = new Shader("shaders/cube.vert", "shaders/cube.frag");
+    this->shader = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
     generate_arrays();
     // generate_texture();
 }
@@ -67,8 +67,8 @@ Cube::~Cube()
 void Cube::draw()
 {
     this->shader->use();
-    this->shader->set_vec3("camera_pos", gamestate.camera->position);
-    this->shader->set_vec3("light_pos", gamestate.light_cube->position);
+    this->shader->set_vec3("camera_pos", context.camera->position);
+    this->shader->set_vec3("light_pos", context.light_cube->position);
     this->shader->set_vec3("light_color", vec3(1.0f, 1.0f, 1.0f));
     this->shader->set_vec3("cube_color", vec3(1.0f, 0.5f, 0.31f));
 
@@ -76,10 +76,10 @@ void Cube::draw()
     model      = translate(model, this->position);
     //model      = rotate(model, ((float)SDL_GetTicks64() / 1000.f) * radians(50.0f), vec3(0.5f, 1.0f, 0.0f));
     
-    mat4 view  = gamestate.camera->get_view_matrix();
+    mat4 view  = context.camera->get_view_matrix();
 
     mat4 projection = mat4(1.0f);
-    projection = perspective(radians(45.0f), (float)gamestate.screen_width / (float)gamestate.screen_height, 0.1f, 100.0f);
+    projection = perspective(radians(45.0f), (float)context.screen_width / (float)context.screen_height, 0.1f, 10000.0f);
 
     this->shader->set_mat4("model", model);
     this->shader->set_mat4("view", view);

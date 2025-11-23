@@ -28,10 +28,10 @@ struct Model {
         }
     }
 
-    void draw(Shader *shader, vec3 position, vec3 scale)
+    void draw(Shader *shader, vec3 position, quat orientation, vec3 scale)
     {
         for (unsigned int i = 0; i < this->meshes.size(); i++) {
-            this->meshes[i].draw(shader, position, scale);
+            this->meshes[i].draw(shader, position, orientation, scale);
         }
     }
 
@@ -39,7 +39,12 @@ private:
     void loadModel(const char *path)
     {
         Assimp::Importer importer;
-        const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+        const aiScene *scene = importer.ReadFile(path, 
+                                                 aiProcess_Triangulate | 
+                                                 aiProcess_GenSmoothNormals | 
+                                                 aiProcess_FlipUVs | 
+                                                 aiProcess_CalcTangentSpace);
+
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             printf("error loading model");
             return;
