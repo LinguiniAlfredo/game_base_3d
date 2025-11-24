@@ -12,6 +12,7 @@
 #include "shapes/lightcube.h"
 #include "entities/entity.h"
 #include "entities/floor.h"
+#include "entities/skybox.h"
 #include <vector>
 
 SDL_Window   *sdl_window = nullptr;
@@ -91,6 +92,8 @@ void close_app()
 
     delete context.floor;
 
+    delete context.skybox;
+
     SDL_GL_DeleteContext(opengl_context);
     SDL_DestroyWindow(sdl_window);
 
@@ -139,12 +142,11 @@ void render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    context.skybox->draw();
     context.light_cube->draw();
-
     for(unsigned int i = 0; i < context.entities.size(); i++) {
         context.entities[i]->draw();
     }
-
     context.floor->draw();
 
     SDL_GL_SwapWindow(sdl_window);
@@ -190,7 +192,7 @@ void game_loop()
         if (fps > 0)
             delta_time = 1 / fps;
         
-        printf("FPS: %f\n", fps);
+        //printf("FPS: %f\n", fps);
         timer_start(&fps_cap_timer);
     }
 }
@@ -217,7 +219,8 @@ int main(int argc, char **argv)
                                               vec3(0.0f, -5.0f, 5.0f),
                                               angleAxis(radians(90.f), vec3(0.f, 1.f, 0.f))));
 
-        context.floor = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));
+        context.floor  = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));
+        context.skybox = new Skybox();
 
         game_loop();
     }

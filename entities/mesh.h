@@ -25,7 +25,7 @@ struct Mesh
 {
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
-    unsigned int         VAO{}, VBO{}, EBO{};
+    unsigned int         VAO, VBO, EBO;
 
     Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices)
     {
@@ -59,7 +59,7 @@ struct Mesh
         shader->set_mat4("view", mat_view);
         shader->set_mat4("projection", mat_proj);
 
-        glBindVertexArray(VAO);
+        glBindVertexArray(this->VAO);
         glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, nullptr);
         glBindVertexArray(0);
     }

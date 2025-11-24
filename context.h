@@ -8,6 +8,7 @@ typedef struct Camera    Camera;
 typedef struct LightCube LightCube;
 typedef struct Entity    Entity;
 typedef struct Floor     Floor;
+typedef struct Skybox    Skybox;
 
 typedef enum {
     MENU,
@@ -26,6 +27,7 @@ typedef struct Context {
     Camera          *camera;
     vector<Entity*> entities;
     Floor           *floor;
+    Skybox          *skybox;
     Gamemode        mode;
     int             screen_width;
     int             screen_height;
