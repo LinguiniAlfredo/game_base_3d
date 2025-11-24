@@ -13,6 +13,7 @@
 #include "entities/entity.h"
 #include "entities/floor.h"
 #include "entities/skybox.h"
+#include "entities/link.h"
 #include <vector>
 
 SDL_Window   *sdl_window = nullptr;
@@ -142,6 +143,7 @@ void render()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    context.skybox->draw();
     context.light_cube->draw();
     for(unsigned int i = 0; i < context.entities.size(); i++) {
         context.entities[i]->draw();
@@ -150,7 +152,6 @@ void render()
 
     // draw this last, so fragments behind objects dont get rendered
     // but frig the depth buffer in its shader to pass the depth check
-    context.skybox->draw();
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -207,7 +208,7 @@ int main(int argc, char **argv)
 
         context.light_cube = new LightCube(vec3(0.0f, 0.0f, 0.0f));
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             static float scale = 10.0f;
             if (i % 12 == 0) {
                 scale += 5.f;
@@ -218,9 +219,9 @@ int main(int argc, char **argv)
         // context.entities.push_back(new Entity("resources/models/backpack.obj", vec3(0.0f, 0.0f, 5.0f)));
         // context.entities.push_back(new Entity("resources/models/rubik.obj", vec3(5.0f, 0.0f, 5.0f)));
 
-        context.entities.push_back(new Entity("resources/models/young_link_corrected.fbx",
-                                              vec3(0.0f, -5.0f, -5.0f),
-                                              angleAxis(radians(180.f), vec3(0.f, 1.f, 0.f))));
+        context.entities.push_back(new Link(vec3(0.0f, -5.0f, -5.0f),
+                                            angleAxis(radians(180.f),
+                                                vec3(0.f, 1.f, 0.f))));
 
         context.floor  = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));
         context.skybox = new Skybox();

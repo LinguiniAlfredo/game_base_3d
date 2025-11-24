@@ -43,11 +43,10 @@ struct Skybox {
     {
         glDepthFunc(GL_LEQUAL);
         this->shader->use();
-        this->shader->set_int("skybox", 0); // not needed, i think it does this by default
 
         mat4 mat_view = mat4(1.0f);
         mat_view = context.camera->get_view_matrix();
-        mat_view = mat4(mat3(mat_view)); // convert to mat3 to remove translation, then back to mat4, so skybox doesn't move
+        mat_view = mat4(mat3(mat_view)); // convert to mat3 to remove translation, then back to mat4, so skybox is fixed to camera
 
         mat4 mat_proj = mat4(1.0f);
         mat_proj = context.camera->get_perspective_matrix();

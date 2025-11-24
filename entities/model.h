@@ -12,7 +12,7 @@
 using namespace glm;
 
 struct Model {
-    vector<Mesh>    meshes;
+    vector<Mesh> meshes;
 
     explicit Model(const char *path)
     {
