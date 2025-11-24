@@ -207,7 +207,7 @@ int main(int argc, char **argv)
 
         context.light_cube = new LightCube(vec3(0.0f, 0.0f, 0.0f));
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             static float scale = 10.0f;
             if (i % 11 == 0) {
                 scale += 5.f;
