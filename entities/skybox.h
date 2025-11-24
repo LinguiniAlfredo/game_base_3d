@@ -41,8 +41,9 @@ struct Skybox {
 
     void draw()
     {
-        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);
         this->shader->use();
+        this->shader->set_int("skybox", 0); // not needed, i think it does this by default
 
         mat4 mat_view = mat4(1.0f);
         mat_view = context.camera->get_view_matrix();
@@ -57,7 +58,7 @@ struct Skybox {
         glBindVertexArray(this->VAO);
         glBindTexture(GL_TEXTURE_CUBE_MAP, this->texture_id);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
     }
 
 private:

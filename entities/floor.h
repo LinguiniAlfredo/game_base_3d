@@ -8,34 +8,83 @@ using namespace std;
 
 struct Floor
 {
-    Mesh   mesh;
-    Shader *shader;
-    vec3   position;
+    vector<Vertex>       vertices;
+    vector<unsigned int> indices;
+    Shader               *shader;
+    vec3                 position;
+    unsigned int         VAO, VBO, EBO;
 
     Floor(const float width, const float length, const vec3 position)
-        : mesh(get_vertices(width, length), get_indices())
     {
-        this->shader = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
+        this->vertices = get_vertices(width, length);
+        this->indices  = get_indices();
+        this->shader   = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
         this->position = position;
+        init();
     }
 
     ~Floor()
     {
         delete this->shader;
-        glDeleteVertexArrays(1, &this->mesh.VAO);
-        glDeleteBuffers(1, &this->mesh.VBO);
-        glDeleteBuffers(1, &this->mesh.EBO);
+        glDeleteVertexArrays(1, &this->VAO);
+        glDeleteBuffers(1, &this->VBO);
+        glDeleteBuffers(1, &this->EBO);
     }
 
     void draw() const
     {
         // TODO - pass orientation in probably
         const quat orientation = angleAxis(0.f, vec3(0.f, 0.f, 0.f));
-        const vec3 scale   = vec3(1.f, 1.f, 1.f);
-        this->mesh.draw(this->shader, this->position, orientation, scale);
+        const vec3 scalar      = vec3(1.f, 1.f, 1.f);
+
+        this->shader->use();
+        this->shader->set_vec3("camera_pos",  context.camera->position);
+        this->shader->set_vec3("light_pos",   context.light_cube->position);
+        this->shader->set_vec3("light_color", vec3(1.0f, 1.0f, 1.0f));
+        this->shader->set_vec3("cube_color",  vec3(1.0f, 0.5f, 0.31f));
+
+        mat4 mat_model = mat4(1.0f);
+        mat_model = scale(mat_model, scalar);
+        mat_model = mat_model * mat4_cast(orientation);
+        mat_model = translate(mat_model, position);
+
+        mat4 mat_view = context.camera->get_view_matrix();
+
+        mat4 mat_proj = mat4(1.0f);
+        mat_proj = context.camera->get_perspective_matrix();
+
+        shader->set_mat4("model", mat_model);
+        shader->set_mat4("view", mat_view);
+        shader->set_mat4("projection", mat_proj);
+
+        glBindVertexArray(this->VAO);
+        glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
     }
 
 private:
+    void init()
+    {
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        glGenBuffers(1, &EBO);
+
+        glBindVertexArray(VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)nullptr);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+
+        glBindVertexArray(0);
+    }
+
     static vector<Vertex> get_vertices(float width, float length)
     {
         vector<Vertex> vertices;

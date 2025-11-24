@@ -66,17 +66,21 @@ void LightCube::draw()
 {
     this->shader->use();
 
-    mat4 model     = mat4(1.0f);
-    model          = translate(model, this->position);
+    mat4 mat_model = mat4(1.0f);
+    float radius   = 10.f;
+    float pos_x    = sin(SDL_GetTicks64() / 1000.f) * radius;
+    float pos_z    = cos(SDL_GetTicks64() / 1000.f) * radius;
+    this->position = vec3(pos_x, this->position.y, pos_z);
+    mat_model      = translate(mat_model, this->position);
  
-    mat4 view  = context.camera->get_view_matrix();
+    mat4 mat_view  = context.camera->get_view_matrix();
 
-    mat4 projection = mat4(1.0f);
-    projection = perspective(radians(45.0f), (float)context.screen_width / (float)context.screen_height, 0.1f, 10000.0f);
+    mat4 mat_proj = mat4(1.0f);
+    mat_proj = context.camera->get_perspective_matrix();
 
-    this->shader->set_mat4("model", model);
-    this->shader->set_mat4("view", view);
-    this->shader->set_mat4("projection", projection);
+    this->shader->set_mat4("model", mat_model);
+    this->shader->set_mat4("view", mat_view);
+    this->shader->set_mat4("projection", mat_proj);
 
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
