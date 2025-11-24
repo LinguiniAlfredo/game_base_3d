@@ -32,7 +32,7 @@ Context context = {
     .wireframe              = 0
 };
 
-vec3 cube_positions[] = {
+vec3 positions[] = {
     vec3(1.0f, 0.0f, 0.0f),
     vec3(0.0f, 1.0f, 0.0f),
     vec3(0.0f, 0.0f, 1.0f),
@@ -44,7 +44,6 @@ vec3 cube_positions[] = {
     vec3(-1.0f, 1.0f, 1.0f),
     vec3(1.0f, 1.0f, -1.0f),
     vec3(-1.0f, 1.0f, -1.0f),
-    vec3(-1.0f, -1.0f, -1.0f),
 };
 
 int initialize()
@@ -208,16 +207,16 @@ int main(int argc, char **argv)
 
         context.light_cube = new LightCube(vec3(0.0f, 0.0f, 0.0f));
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             static float scale = 10.0f;
-            if (i % 12 == 0) {
+            if (i % 11 == 0) {
                 scale += 5.f;
             }
-            context.entities.push_back(new Entity("resources/models/sphere.obj", cube_positions[i % 12] * scale));
+            context.entities.push_back(new Entity("resources/models/sphere.obj", positions[i % 11] * scale));
         }
 
-        // context.entities.push_back(new Entity("resources/models/backpack.obj", vec3(0.0f, 0.0f, 5.0f)));
-        // context.entities.push_back(new Entity("resources/models/rubik.obj", vec3(5.0f, 0.0f, 5.0f)));
+        //context.entities.push_back(new Entity("resources/models/backpack.obj", vec3(5.0f, 0.0f, 5.0f)));
+        //context.entities.push_back(new Entity("resources/models/rubik.obj", vec3(5.0f, 0.0f, 5.0f)));
 
         context.entities.push_back(new Link(vec3(0.0f, -5.0f, -5.0f),
                                             angleAxis(radians(180.f),
