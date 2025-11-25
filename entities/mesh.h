@@ -45,10 +45,8 @@ struct Mesh
 
         mat4 mat_model = mat4(1.0f);
         mat_model = scale(mat_model, scalar);
-        mat_model = mat_model * mat4_cast(orientation);
         mat_model = translate(mat_model, position);
-
-        mat_model = rotate(mat_model, SDL_GetTicks64()/1000.f, vec3(0.0f, -1.0f, 0.0f));
+        mat_model = mat_model * mat4_cast(orientation);
 
         mat4 mat_view = context.camera->get_view_matrix();
 

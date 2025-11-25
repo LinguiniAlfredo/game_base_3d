@@ -27,6 +27,11 @@ Entity::~Entity()
     delete this->model;
 }
 
+void Entity::update(float delta_time)
+{
+
+}
+
 void Entity::draw()
 {
     model->draw(this->shader, this->position, this->orientation, this->scalar);

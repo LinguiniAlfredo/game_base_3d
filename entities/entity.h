@@ -19,5 +19,6 @@ struct Entity
            const float scale = 1.f);
     virtual ~Entity();
 
+    virtual void update(float delta_time);
     virtual void draw();
 };
