@@ -39,7 +39,7 @@ struct Skybox {
         glDeleteTextures(1, &this->texture_id);
     }
 
-    void draw()
+    void render()
     {
         glDepthFunc(GL_LEQUAL);
         this->shader->use();

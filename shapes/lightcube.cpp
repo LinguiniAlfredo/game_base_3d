@@ -62,15 +62,29 @@ LightCube::~LightCube()
     delete (this->shader);
 }
 
-void LightCube::draw()
+void LightCube::render_shadow_map(Shader *shadow_map_shader)
+{
+    shadow_map_shader->use();
+
+    mat4 mat_model = mat4(1.0f);
+    mat_model      = translate(mat_model, this->position);
+ 
+    shadow_map_shader->set_mat4("model", mat_model);
+
+    glBindVertexArray(this->VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
+void LightCube::render()
 {
     this->shader->use();
 
     mat4 mat_model = mat4(1.0f);
-    float radius   = 10.f;
-    float pos_x    = sin(SDL_GetTicks64() / 1000.f) * radius;
-    float pos_z    = cos(SDL_GetTicks64() / 1000.f) * radius;
-    this->position = vec3(pos_x, this->position.y, pos_z);
+   // float radius   = 10.f;
+   // float pos_x    = sin(SDL_GetTicks64() / 1000.f) * radius;
+   // float pos_z    = cos(SDL_GetTicks64() / 1000.f) * radius;
+   // this->position = vec3(pos_x, this->position.y, pos_z);
     mat_model      = translate(mat_model, this->position);
  
     mat4 mat_view  = context.camera->get_view_matrix();

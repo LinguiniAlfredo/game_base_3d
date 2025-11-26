@@ -28,10 +28,17 @@ struct Model {
         }
     }
 
-    void draw(Shader *shader, const vec3 position, const quat orientation, const vec3 scale)
+    void render_shadow_map(Shader *shadow_map_shader, const vec3 position, const quat orientation, const vec3 scale)
     {
         for (Mesh &mesh : this->meshes) {
-            mesh.draw(shader, position, orientation, scale);
+            mesh.render_shadow_map(shadow_map_shader, position, orientation, scale);
+        }
+    }
+
+    void render(Shader *shader, const vec3 position, const quat orientation, const vec3 scale)
+    {
+        for (Mesh &mesh : this->meshes) {
+            mesh.render(shader, position, orientation, scale);
         }
     }
 

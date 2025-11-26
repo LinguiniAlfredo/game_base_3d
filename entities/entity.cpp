@@ -32,7 +32,12 @@ void Entity::update(float delta_time)
 
 }
 
-void Entity::draw()
+void Entity::render_shadow_map(Shader *shadow_map_shader)
+{
+    model->render_shadow_map(shadow_map_shader, this->position, this->orientation, this->scalar);
+}
+
+void Entity::render()
 {
     model->draw(this->shader, this->position, this->orientation, this->scalar);
 }

@@ -19,7 +19,8 @@ struct LightCube {
     Shader            *shader;
     vec3              position;
 
-    void draw();
+    void render_shadow_map(Shader *shadow_map_shader);
+    void render();
 
 private:
     void generate_arrays();

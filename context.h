@@ -9,6 +9,7 @@ typedef struct LightCube LightCube;
 typedef struct Entity    Entity;
 typedef struct Floor     Floor;
 typedef struct Skybox    Skybox;
+typedef struct ShadowMap ShadowMap;
 
 typedef enum {
     MENU,
@@ -22,6 +23,7 @@ typedef enum {
 using namespace std;
 
 typedef struct Context {
+    ShadowMap       *shadow_map;
     vector<Cube*>   cubes;
     LightCube       *light_cube;
     Camera          *camera;

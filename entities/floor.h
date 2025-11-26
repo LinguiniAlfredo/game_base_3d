@@ -31,7 +31,27 @@ struct Floor
         glDeleteBuffers(1, &this->EBO);
     }
 
-    void draw() const
+    void render_shadow_map(Shader *shadow_map_shader)
+    {
+        // TODO - pass orientation in probably
+        const quat orientation = angleAxis(0.f, vec3(0.f, 0.f, 0.f));
+        const vec3 scalar      = vec3(1.f, 1.f, 1.f);
+
+        shadow_map_shader->use();
+
+        mat4 mat_model = mat4(1.0f);
+        mat_model = scale(mat_model, scalar);
+        mat_model = mat_model * mat4_cast(orientation);
+        mat_model = translate(mat_model, position);
+
+        shadow_map_shader->set_mat4("model", mat_model);
+
+        glBindVertexArray(this->VAO);
+        glDrawElements(GL_TRIANGLES, (unsigned int)this->indices.size(), GL_UNSIGNED_INT, nullptr);
+        glBindVertexArray(0);
+    }
+
+    void render() const
     {
         // TODO - pass orientation in probably
         const quat orientation = angleAxis(0.f, vec3(0.f, 0.f, 0.f));
@@ -41,7 +61,7 @@ struct Floor
         this->shader->set_vec3("camera_pos",  context.camera->position);
         this->shader->set_vec3("light_pos",   context.light_cube->position);
         this->shader->set_vec3("light_color", vec3(1.0f, 1.0f, 1.0f));
-        this->shader->set_vec3("cube_color",  vec3(1.0f, 0.5f, 0.31f));
+        this->shader->set_vec3("mesh_color",  vec3(1.0f, 0.5f, 0.31f));
 
         mat4 mat_model = mat4(1.0f);
         mat_model = scale(mat_model, scalar);

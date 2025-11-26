@@ -20,5 +20,6 @@ struct Entity
     virtual ~Entity();
 
     virtual void update(float delta_time);
-    virtual void draw();
+    virtual void render_shadow_map(Shader *shadow_map_shader);
+    virtual void render();
 };

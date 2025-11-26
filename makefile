@@ -1,6 +1,8 @@
 CC = g++
+WIN_CC = x86_64-w64-mingw32-g++
 OPTIONS = -Wall -g -pedantic -std=c++20
 LINKER_FLAGS = -lSDL2 -lGL -lGLEW -lm -lassimp
+MINGW_LINKER_FLAGS = -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lglew32 -lm -mwindows
 EXE = game
 
 SRC_DIRS = ./ shaders shapes entities

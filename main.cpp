@@ -15,6 +15,7 @@
 #include "entities/skybox.h"
 #include "entities/link.h"
 #include "entities/backpack.h"
+#include "shadow_map.h"
 #include <vector>
 
 SDL_Window   *sdl_window = nullptr;
@@ -138,25 +139,29 @@ void handle_events(float delta_time)
     context.camera->move(delta_time);
 }
 
-void render(float delta_time)
+void update(float delta_time)
+{
+    for(unsigned int i = 0; i < context.entities.size(); i++) {
+        context.entities[i]->update(delta_time);
+    }
+}
+
+void render()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // update all non-static entities instead of all of them
-    for(unsigned int i = 0; i < context.entities.size(); i++) {
-        context.entities[i]->update(delta_time);
-    }
+    context.shadow_map->do_pass();
 
-    context.skybox->draw();
-    context.light_cube->draw();
+    context.light_cube->render();
     for(unsigned int i = 0; i < context.entities.size(); i++) {
-        context.entities[i]->draw();
+        context.entities[i]->render();
     }
-    context.floor->draw();
+    context.floor->render();
 
     // draw this last, so fragments behind objects dont get rendered
     // but frig the depth buffer in its shader to pass the depth check
+    context.skybox->render();
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -182,7 +187,8 @@ void game_loop()
             case MENU:
                 break;
             case GAME:
-                render(delta_time);
+                update(delta_time);
+                render();
                 break;
             case PAUSED:
                 break;
@@ -211,8 +217,9 @@ int main(int argc, char **argv)
     if (initialize() == 0) {
         context.camera = new Camera(vec3(0.0f, 0.0f, -5.0f));
 
-        context.light_cube = new LightCube(vec3(0.0f, 0.0f, 0.0f));
+        context.shadow_map = new ShadowMap();
 
+        context.light_cube = new LightCube(vec3(0.0f, 0.0f, 0.0f));
         for (int i = 0; i < 100; i++) {
             static float scale = 10.0f;
             if (i % 11 == 0) {
@@ -220,13 +227,10 @@ int main(int argc, char **argv)
             }
             context.entities.push_back(new Entity("resources/models/sphere.obj", positions[i % 11] * scale));
         }
-
         context.entities.push_back(new Backpack(vec3(5.0f, 0.0f, 5.0f)));
-
         context.entities.push_back(new Link(vec3(0.0f, -5.0f, 5.0f),
                                             angleAxis(radians(180.f),
                                                 vec3(0.f, 1.f, 0.f))));
-
         context.floor  = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));
         context.skybox = new Skybox();
 
