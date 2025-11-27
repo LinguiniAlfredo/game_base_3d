@@ -2,6 +2,5 @@
 
 void main()
 {
-    // nothing to see here.
-    // depth map shader doesn't have a color buffer
+    gl_FragDepth = gl_FragCoord.z;
 }

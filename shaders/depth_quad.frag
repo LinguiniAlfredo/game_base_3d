@@ -17,5 +17,6 @@ float linearize_depth(float depth)
 void main()
 {
     float depth_value = texture(depth_map, tex_coords).r;
+    //frag_color = vec4(vec3(linearize_depth(depth_value) / far_plane), 1.0);
     frag_color = vec4(vec3(depth_value), 1.0);
 }

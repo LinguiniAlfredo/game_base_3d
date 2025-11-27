@@ -64,7 +64,7 @@ LightCube::~LightCube()
 
 void LightCube::render_shadow_map(Shader *shadow_map_shader)
 {
-    shadow_map_shader->use();
+    //shadow_map_shader->use();
 
     mat4 mat_model = mat4(1.0f);
     mat_model      = translate(mat_model, this->position);

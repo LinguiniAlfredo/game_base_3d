@@ -12,14 +12,14 @@ struct ShadowMap
     unsigned int depth_map, FBO;
     Shader       *shader, *depth_quad_shader;
     mat4         light_space_matrix;
+    float        near_plane, far_plane;
 
     ShadowMap();
     ~ShadowMap();
 
     void do_pass();
 
-private:
     void init();
     void render_shadow_map();
-    void render_depth_quad(float near_plane, float far_plane);
+    void render_depth_quad();
 };

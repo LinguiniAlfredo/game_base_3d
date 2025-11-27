@@ -34,7 +34,8 @@ typedef struct Context {
     int             screen_width;
     int             screen_height;
     float           ticks_per_frame;
-    int             wireframe;
+    bool            wireframe;
+    bool            show_shadow_map;
 } Context;
 
 extern Context context;

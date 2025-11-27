@@ -31,7 +31,8 @@ Context context = {
     .screen_width           = 1920/2,
     .screen_height          = 1080/2,
     .ticks_per_frame        = 1000.f / 144.0f,
-    .wireframe              = 0
+    .wireframe              = false,
+    .show_shadow_map        = false
 };
 
 vec3 positions[] = {
@@ -112,6 +113,11 @@ void toggle_wireframe()
     }
 }
 
+void toggle_shadow_map()
+{
+    context.show_shadow_map = !context.show_shadow_map;
+}
+
 void handle_events(float delta_time)
 {
     SDL_Event e;
@@ -128,6 +134,9 @@ void handle_events(float delta_time)
                     break;
                 case SDLK_F1:
                     toggle_wireframe();
+                    break;
+                case SDLK_F2:
+                    toggle_shadow_map();
                     break;
             }
         }
@@ -158,6 +167,9 @@ void render()
         context.entities[i]->render();
     }
     context.floor->render();
+
+    if (context.show_shadow_map)
+        context.shadow_map->render_depth_quad();
 
     // draw this last, so fragments behind objects dont get rendered
     // but frig the depth buffer in its shader to pass the depth check
@@ -219,16 +231,16 @@ int main(int argc, char **argv)
 
         context.shadow_map = new ShadowMap();
 
-        context.light_cube = new LightCube(vec3(0.0f, 5.0f, 0.0f));
-        for (int i = 0; i < 100; i++) {
-            static float scale = 10.0f;
-            if (i % 11 == 0) {
-                scale += 5.f;
-            }
-            context.entities.push_back(new Entity("resources/models/sphere.obj", positions[i % 11] * scale));
-        }
+        context.light_cube = new LightCube(vec3(0.0f, 50.0f, -50.0f));
+       // for (int i = 0; i < 100; i++) {
+       //     static float scale = 10.0f;
+       //     if (i % 11 == 0) {
+       //         scale += 5.f;
+       //     }
+       //     context.entities.push_back(new Entity("resources/models/sphere.obj", positions[i % 11] * scale));
+       // }
         context.entities.push_back(new Backpack(vec3(5.0f, 0.0f, 5.0f)));
-        context.entities.push_back(new Link(vec3(0.0f, -4.0f, 5.0f),
+        context.entities.push_back(new Link(vec3(0.0f, -4.0f, 0.0f),
                                             angleAxis(radians(180.f),
                                                 vec3(0.f, 1.f, 0.f))));
         context.floor  = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));

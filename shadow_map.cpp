@@ -12,6 +12,8 @@ using namespace glm;
 
 ShadowMap::ShadowMap()
 {
+    this->near_plane = .1f;
+    this->far_plane  = 100.f;
     shader = new Shader("shaders/depth.vert", "shaders/depth.frag");
     depth_quad_shader = new Shader("shaders/depth_quad.vert", "shaders/depth_quad.frag");
     init();
@@ -27,12 +29,9 @@ void ShadowMap::do_pass()
 {
     mat4 mat_proj, mat_view;
 
-    float near_plane = 1.0f;
-    float far_plane = 7.5f;
-
-    mat_proj = ortho(-10.f, 10.f, -10.f, 10.f, near_plane, far_plane);
-    mat_view = lookAt(context.light_cube->position, vec3(0.f), vec3(0.f, 1.f, 0.f));
-    this->light_space_matrix = mat_proj * mat_view; // do this in shader ??
+    mat_proj = ortho(-10.f, 10.f, -10.f, 10.f, this->near_plane, this->far_plane);
+    mat_view = lookAt(context.light_cube->position, vec3(0.0f), vec3(0.f, 1.f, 0.f));
+    this->light_space_matrix = mat_proj * mat_view;
 
     shader->use();
     shader->set_mat4("light_space_matrix", this->light_space_matrix);
@@ -41,13 +40,18 @@ void ShadowMap::do_pass()
     glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
     glClear(GL_DEPTH_BUFFER_BIT);
 
+    // cull the front face of meshes during depth map rendering
+    // prevents peter-panning
+    glCullFace(GL_FRONT);
+
     render_shadow_map();
+
+    glCullFace(GL_BACK);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, context.screen_width, context.screen_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    render_depth_quad(near_plane, far_plane);
 }
 
 void ShadowMap::init()
@@ -73,18 +77,18 @@ void ShadowMap::init()
 
 void ShadowMap::render_shadow_map()
 {
-    context.light_cube->render_shadow_map(this->shader);
     for(unsigned int i = 0; i < context.entities.size(); i++) {
         context.entities[i]->render_shadow_map(this->shader);
     }
     context.floor->render_shadow_map(this->shader);
 }
 
-void ShadowMap::render_depth_quad(float near_plane, float far_plane)
+void ShadowMap::render_depth_quad()
 {
+    glViewport(0, 0, context.screen_width/4, context.screen_height/4);
     this->depth_quad_shader->use();
-    this->depth_quad_shader->set_float("near_plane", near_plane);
-    this->depth_quad_shader->set_float("far_plane", far_plane);
+    this->depth_quad_shader->set_float("near_plane", this->near_plane);
+    this->depth_quad_shader->set_float("far_plane", this->far_plane);
     this->depth_quad_shader->set_int("depth_map", 0);
 
     glActiveTexture(GL_TEXTURE0);
@@ -115,4 +119,5 @@ void ShadowMap::render_depth_quad(float near_plane, float far_plane)
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
+    glViewport(0, 0, context.screen_width, context.screen_height);
 }
