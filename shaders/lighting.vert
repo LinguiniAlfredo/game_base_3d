@@ -23,5 +23,5 @@ void main()
     vs_out.normal   = transpose(inverse(mat3(model))) * a_normal;
     vs_out.frag_pos_light_space = light_space_matrix * vec4(vs_out.frag_pos, 1.0);
 
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    gl_Position = projection * view * model * vec4(a_pos, 1.0);
 }

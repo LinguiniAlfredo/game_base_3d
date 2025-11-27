@@ -39,5 +39,5 @@ void Entity::render_shadow_map(Shader *shadow_map_shader)
 
 void Entity::render()
 {
-    model->draw(this->shader, this->position, this->orientation, this->scalar);
+    model->render(this->shader, this->position, this->orientation, this->scalar);
 }

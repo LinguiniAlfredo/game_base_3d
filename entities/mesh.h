@@ -1,5 +1,4 @@
 #pragma once
-#include "../shadow_map.h"
 #include "../utils/shader.h"
 #include "../context.h"
 #include "../utils/camera.h"
@@ -7,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include "../shadow_map.h"
 using namespace glm;
 using namespace std;
 

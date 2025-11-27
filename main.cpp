@@ -207,7 +207,7 @@ void game_loop()
         if (fps > 0)
             delta_time = 1 / fps;
         
-        printf("FPS: %f\n", fps);
+        //printf("FPS: %f\n", fps);
         timer_start(&fps_cap_timer);
     }
 }
@@ -228,7 +228,7 @@ int main(int argc, char **argv)
             context.entities.push_back(new Entity("resources/models/sphere.obj", positions[i % 11] * scale));
         }
         context.entities.push_back(new Backpack(vec3(5.0f, 0.0f, 5.0f)));
-        context.entities.push_back(new Link(vec3(0.0f, -5.0f, 5.0f),
+        context.entities.push_back(new Link(vec3(0.0f, -4.0f, 5.0f),
                                             angleAxis(radians(180.f),
                                                 vec3(0.f, 1.f, 0.f))));
         context.floor  = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));
