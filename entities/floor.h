@@ -37,7 +37,7 @@ struct Floor
         const quat orientation = angleAxis(0.f, vec3(0.f, 0.f, 0.f));
         const vec3 scalar      = vec3(1.f, 1.f, 1.f);
 
-        shadow_map_shader->use();
+        //shadow_map_shader->use();
 
         mat4 mat_model = mat4(1.0f);
         mat_model = scale(mat_model, scalar);
@@ -58,10 +58,12 @@ struct Floor
         const vec3 scalar      = vec3(1.f, 1.f, 1.f);
 
         this->shader->use();
-        this->shader->set_vec3("camera_pos",  context.camera->position);
-        this->shader->set_vec3("light_pos",   context.light_cube->position);
-        this->shader->set_vec3("light_color", vec3(1.0f, 1.0f, 1.0f));
-        this->shader->set_vec3("mesh_color",  vec3(1.0f, 0.5f, 0.31f));
+        shader->set_int("shadow_map", 0);
+        shader->set_vec3("camera_pos",  context.camera->position);
+        shader->set_vec3("light_pos",   context.light_cube->position);
+        shader->set_mat4("light_space_matrix", context.shadow_map->light_space_matrix);
+        shader->set_vec3("light_color", vec3(1.0f, 1.0f, 1.0f));
+        shader->set_vec3("mesh_color",  vec3(1.0f, 0.5f, 0.31f));
 
         mat4 mat_model = mat4(1.0f);
         mat_model = scale(mat_model, scalar);
@@ -76,6 +78,9 @@ struct Floor
         shader->set_mat4("model", mat_model);
         shader->set_mat4("view", mat_view);
         shader->set_mat4("projection", mat_proj);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, context.shadow_map->depth_map);
 
         glBindVertexArray(this->VAO);
         glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, nullptr);

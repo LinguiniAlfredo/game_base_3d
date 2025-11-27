@@ -22,23 +22,24 @@ float shadow_calculation(vec4 frag_pos_light_space)
 
     float closest_depth = texture(shadow_map, proj_coords.xy).r;
     float current_depth = proj_coords.z;
+    float shadow = current_depth > closest_depth ? 1.0 : 0.0;
 
-    vec3 normal = normalize(fs_in.normal);
-    vec3 light_dir = normalize(light_pos - fs_in.frag_pos);
-    float bias = max(0.05 * (1.0 - dot(normal, light_dir)), 0.005);
+   // vec3 normal = normalize(fs_in.normal);
+   // vec3 light_dir = normalize(light_pos - fs_in.frag_pos);
+   // float bias = max(0.05 * (1.0 - dot(normal, light_dir)), 0.005);
 
-    float shadow = 0.0;
-    vec2 texel_size = 1.0 / textureSize(shadow_map, 0);
-    for (int x = -1; x <= 1; ++x) {
-        for (int y = -1; y <= 1; ++y) {
-            float pcf_depth = texture(shadow_map, proj_coords.xy + vec2(x, y) * texel_size).r;
-            shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
-        }
-    }
-    shadow /= 9.0;
+   // float shadow = 0.0;
+   // vec2 texel_size = 1.0 / textureSize(shadow_map, 0);
+   // for (int x = -1; x <= 1; ++x) {
+   //     for (int y = -1; y <= 1; ++y) {
+   //         float pcf_depth = texture(shadow_map, proj_coords.xy + vec2(x, y) * texel_size).r;
+   //         shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
+   //     }
+   // }
+   // shadow /= 9.0;
 
-    if (proj_coords.z > 1.0)
-        shadow = 0.0;
+   // if (proj_coords.z > 1.0)
+   //     shadow = 0.0;
 
     return shadow;
 }

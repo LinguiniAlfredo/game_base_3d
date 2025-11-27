@@ -148,7 +148,7 @@ void update(float delta_time)
 
 void render()
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     context.shadow_map->do_pass();
@@ -219,7 +219,7 @@ int main(int argc, char **argv)
 
         context.shadow_map = new ShadowMap();
 
-        context.light_cube = new LightCube(vec3(0.0f, 0.0f, 0.0f));
+        context.light_cube = new LightCube(vec3(0.0f, 5.0f, 0.0f));
         for (int i = 0; i < 100; i++) {
             static float scale = 10.0f;
             if (i % 11 == 0) {

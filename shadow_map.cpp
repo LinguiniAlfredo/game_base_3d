@@ -13,19 +13,24 @@ using namespace glm;
 ShadowMap::ShadowMap()
 {
     shader = new Shader("shaders/depth.vert", "shaders/depth.frag");
+    depth_quad_shader = new Shader("shaders/depth_quad.vert", "shaders/depth_quad.frag");
     init();
 }
 
 ShadowMap::~ShadowMap()
 {
     delete shader;
+    delete depth_quad_shader;
 }
 
 void ShadowMap::do_pass()
 {
     mat4 mat_proj, mat_view;
 
-    mat_proj = ortho(-10.f, 10.f, -10.f, 10.f, context.camera->frustrum.near, context.camera->frustrum.far);
+    float near_plane = 1.0f;
+    float far_plane = 7.5f;
+
+    mat_proj = ortho(-10.f, 10.f, -10.f, 10.f, near_plane, far_plane);
     mat_view = lookAt(context.light_cube->position, vec3(0.f), vec3(0.f, 1.f, 0.f));
     this->light_space_matrix = mat_proj * mat_view; // do this in shader ??
 
@@ -36,11 +41,13 @@ void ShadowMap::do_pass()
     glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    render_scene();
+    render_shadow_map();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, context.screen_width, context.screen_height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    render_depth_quad(near_plane, far_plane);
 }
 
 void ShadowMap::init()
@@ -64,11 +71,48 @@ void ShadowMap::init()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void ShadowMap::render_scene()
+void ShadowMap::render_shadow_map()
 {
     context.light_cube->render_shadow_map(this->shader);
     for(unsigned int i = 0; i < context.entities.size(); i++) {
         context.entities[i]->render_shadow_map(this->shader);
     }
     context.floor->render_shadow_map(this->shader);
+}
+
+void ShadowMap::render_depth_quad(float near_plane, float far_plane)
+{
+    this->depth_quad_shader->use();
+    this->depth_quad_shader->set_float("near_plane", near_plane);
+    this->depth_quad_shader->set_float("far_plane", far_plane);
+    this->depth_quad_shader->set_int("depth_map", 0);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->depth_map);
+
+    unsigned int quadVAO = 0;
+    unsigned int quadVBO;
+
+    if (quadVAO == 0) {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }

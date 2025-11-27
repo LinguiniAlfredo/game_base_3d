@@ -38,7 +38,7 @@ struct Mesh
 
     void render_shadow_map(Shader *shadow_map_shader, const vec3 position, const quat orientation, const vec3 scalar) const
     {
-        shadow_map_shader->use();
+        //shadow_map_shader->use();
 
         mat4 mat_model = mat4(1.0f);
         mat_model = scale(mat_model, scalar);
@@ -75,6 +75,9 @@ struct Mesh
         shader->set_mat4("model", mat_model);
         shader->set_mat4("view", mat_view);
         shader->set_mat4("projection", mat_proj);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, context.shadow_map->depth_map);
 
         glBindVertexArray(this->VAO);
         glDrawElements(GL_TRIANGLES, (unsigned int)this->indices.size(), GL_UNSIGNED_INT, nullptr);
