@@ -9,7 +9,6 @@
 #include "utils/timer.h"
 #include "context.h"
 #include "utils/camera.h"
-#include "shapes/cube.h"
 #include "shapes/lightcube.h"
 #include "entities/entity.h"
 #include "entities/floor.h"
