@@ -45,10 +45,14 @@ float shadow_calculation(vec4 frag_pos_light_space)
 
 void main()
 {
+    float shininess  = 64.0;
+    float speculance = 1.0;
+    float ambience   = 0.3;
+
     vec3 color  = mesh_color;
     vec3 normal = normalize(fs_in.normal);
     
-    vec3 ambient = 0.3 * light_color;
+    vec3 ambient = light_color * ambience;
 
     vec3  light_dir = normalize(light_pos - fs_in.frag_pos);
     float diff      = max(dot(light_dir, normal), 0.0);
@@ -59,8 +63,8 @@ void main()
 
     float spec = 0.0;
     vec3 halfway_dir = normalize(light_dir + view_dir);
-    spec = pow(max(dot(normal, halfway_dir), 0.0), 64.0);
-    vec3 specular = spec * light_color;
+    spec = pow(max(dot(normal, halfway_dir), 0.0), shininess);
+    vec3 specular = light_color * (spec * speculance);
 
     float shadow = shadow_calculation(fs_in.frag_pos_light_space);
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;

@@ -4,8 +4,8 @@
 #include <vector>
 using namespace glm;
 
-const unsigned int DEPTH_MAP_WIDTH = 1024;
-const unsigned int DEPTH_MAP_HEIGHT = 1024;
+const unsigned int DEPTH_MAP_WIDTH = 8124;
+const unsigned int DEPTH_MAP_HEIGHT = 8124;
 
 struct ShadowMap
 {
