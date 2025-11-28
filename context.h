@@ -37,6 +37,7 @@ typedef struct Context {
     bool            wireframe;
     bool            show_shadow_map;
     bool            show_collisions;
+    vector<Entity*> world_blocks;
 } Context;
 
 extern Context context;

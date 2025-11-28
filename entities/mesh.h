@@ -14,6 +14,7 @@ struct Vertex
 {
     vec3 position;
     vec3 normal;
+    vec2 tex_coords;
 };
 
 struct Texture
@@ -26,12 +27,14 @@ struct Mesh
 {
     vector<Vertex>       vertices;
     vector<unsigned int> indices;
+    vector<Texture>      textures;
     unsigned int         VAO, VBO, EBO;
 
-    Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices)
+    Mesh(const vector<Vertex> &vertices, const vector<unsigned int> &indices, const vector<Texture> &textures)
     {
         this->vertices = vertices;
         this->indices  = indices;
+        this->textures = textures;
 
         init();
     }

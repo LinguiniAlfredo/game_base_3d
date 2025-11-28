@@ -9,12 +9,12 @@ struct Entity
 {
     Model     *model;
     Shader    *shader;
+    Collision *collision;
     vec3      position;
     vec3      target_position;
     quat      orientation;
     quat      target_orientation;
     vec3      scalar;
-    Collision *collision;
 
     Entity();
     Entity(const char *filename,

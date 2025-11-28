@@ -15,17 +15,13 @@
 #include "entities/skybox.h"
 #include "entities/link.h"
 #include "entities/backpack.h"
+#include "entities/cube.h"
 #include "renderer/shadow_map.h"
 #include "utils/collision.h"
 #include <vector>
 
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
-
-// TODO - multiple light types, PointLight, Spotlight etc, put all of them in context.lights
-//      - have shader handle direction to all lights in scene
-//      - give player gravity and interact with floor
-//      - do i need to store shader pointers or can i use the stack
 
 Context context = {
     .mode                   = GAME,
@@ -54,13 +50,13 @@ int initialize()
     sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED, context.screen_width,
                                 context.screen_height, SDL_WINDOW_OPENGL);
-    if (sdl_window == NULL) {
+    if (sdl_window == nullptr) {
         printf("window could not be created... %s\n", SDL_GetError());
         return 1;
     }
 
     opengl_context = SDL_GL_CreateContext(sdl_window);
-    if (opengl_context == NULL) {
+    if (opengl_context == nullptr) {
         printf("opengl context could not be created... %s\n", SDL_GetError());
         return 1;
     }
@@ -71,8 +67,8 @@ int initialize()
     }
 
     SDL_ShowCursor(SDL_DISABLE);
-    SDL_SetWindowGrab(sdl_window, SDL_TRUE);
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    //SDL_SetWindowGrab(sdl_window, SDL_TRUE);
+    //SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, context.screen_width, context.screen_height);
@@ -84,12 +80,15 @@ void close_app()
 {
     delete context.light_cube;
 
-    for (unsigned int i = 0; i < context.entities.size(); i++) {
-        delete context.entities[i];
+    for (const auto &world_block : context.world_blocks) {
+        delete world_block;
+    }
+
+    for (const auto &entity : context.entities) {
+        delete entity;
     }
 
     delete context.floor;
-
     delete context.skybox;
 
     SDL_GL_DeleteContext(opengl_context);
@@ -127,7 +126,7 @@ void toggle_paused()
     }
 }
 
-void handle_events(float delta_time)
+void handle_events(const float delta_time)
 {
     SDL_Event e;
     int mouse_x, mouse_y;
@@ -163,10 +162,14 @@ void handle_events(float delta_time)
     context.camera->move(delta_time);
 }
 
-void update(float delta_time)
+void update(const float delta_time)
 {
-    for(unsigned int i = 0; i < context.entities.size(); i++) {
-        context.entities[i]->update(delta_time);
+    for (const auto &world_block : context.world_blocks) {
+        world_block->update(delta_time);
+    }
+    for (const auto &entity : context.entities) {
+        entity->update(delta_time);
+
     }
 }
 
@@ -177,12 +180,19 @@ void render()
 
     context.shadow_map->do_pass();
 
-    context.light_cube->render();
-    for(unsigned int i = 0; i < context.entities.size(); i++) {
-        context.entities[i]->render();
+    for (const auto &world_block : context.world_blocks) {
+        world_block->render();
         if (context.show_collisions)
-            context.entities[i]->render_collider();
+            world_block->render_collider();
     }
+
+    context.light_cube->render();
+    for (const auto &entity : context.entities) {
+        entity->render();
+        if (context.show_collisions)
+            entity->render_collider();
+    }
+
     context.floor->render();
     if (context.show_collisions) {
         context.floor->collision->render();
@@ -190,7 +200,6 @@ void render()
 
     if (context.show_shadow_map)
         context.shadow_map->render_depth_quad();
-
 
     // draw this last, so fragments behind objects dont get rendered
     // but frig the depth buffer in its shader to pass the depth check
@@ -253,10 +262,11 @@ int main(int argc, char **argv)
         context.shadow_map = new ShadowMap();
         context.light_cube = new LightCube(vec3(-50.0f, 50.0f, -50.0f));
         context.entities.push_back(new Backpack(vec3(-5.0f, 0.0f, -5.0f)));
-        context.entities.push_back(new Link(vec3(0.0f, 0.0f, 0.0f),
-                                            angleAxis(radians(180.f),
-                                                vec3(0.f, 1.f, 0.f))));
+        context.entities.push_back(new Link(vec3(0.0f, 0.0f, 0.0f)));
         context.floor  = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));
+
+        context.world_blocks.push_back(new Cube(vec3(-10.f, 0.f, 0.f)));
+
         context.skybox = new Skybox();
 
         game_loop();

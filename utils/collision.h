@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include "shader.h"
+#include "../context.h"
 using namespace glm;
 using namespace std;
 
@@ -23,6 +24,11 @@ struct Collision
         this->shader          = new Shader("shaders/simple.vert", "shaders/simple.frag");
         this->is_colliding    = false;
         init_vao();
+    }
+
+    ~Collision()
+    {
+        delete this->shader;
     }
 
     bool intersects(const Collision &other)
@@ -62,7 +68,7 @@ struct Collision
     }
 
 private:
-    vector<vec3> get_vertices()
+    [[nodiscard]] vector<vec3> get_vertices() const
     {
         vec3 min = -this->half_dimensions;
         vec3 max =  this->half_dimensions;

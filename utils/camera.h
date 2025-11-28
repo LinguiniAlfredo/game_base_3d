@@ -9,7 +9,7 @@ using namespace glm;
 
 constexpr float YAW         = 90.0f;
 constexpr float PITCH       = 0.0f;
-constexpr float SPEED       = 2.5f;
+constexpr float SPEED       = 10.f;
 constexpr float SENSITIVITY = 0.1f;
 constexpr float ZOOM        = 45.0f;
 
@@ -87,7 +87,7 @@ struct Camera
             if (key == SDLK_e)
                 this->input_vector.y = 1;
             if (key == SDLK_LSHIFT)
-                this->movement_speed = 10.0f;
+                this->movement_speed = SPEED * 4;
         }
         if (e.type == SDL_KEYUP && e.key.repeat == 0) {
             const SDL_Keycode key = e.key.keysym.sym;
@@ -104,7 +104,7 @@ struct Camera
             if (key == SDLK_e)
                 this->input_vector.y = 0;
             if (key == SDLK_LSHIFT)
-                this->movement_speed = 2.5f;
+                this->movement_speed = SPEED;
         }
         if (this->input_vector.x != 0 || this->input_vector.y != 0 || this->input_vector.z != 0) {
             this->input_vector = normalize(this->input_vector);

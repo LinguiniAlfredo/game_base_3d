@@ -20,6 +20,6 @@ struct ShadowMap
     void do_pass();
 
     void init();
-    void render_shadow_map();
-    void render_depth_quad();
+    void render_shadow_map() const;
+    void render_depth_quad() const;
 };

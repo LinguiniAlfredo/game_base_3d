@@ -94,6 +94,7 @@ private:
     {
         vector<Vertex>       vertices;
         vector<unsigned int> indices;
+        vector<Texture>      textures;
 
         for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
             Vertex vertex{};
@@ -109,6 +110,16 @@ private:
                 vector.z = mesh->mNormals[i].z;
                 vertex.normal = vector;
             }
+
+            if (mesh->mTextureCoords[0]) {
+                vec2 vec;
+                vec.x = mesh->mTextureCoords[0][i].x;
+                vec.y = mesh->mTextureCoords[0][i].y;
+                vertex.tex_coords = vec;
+            } else {
+                vertex.tex_coords = vec2(0.f, 0.f);
+            }
+
             vertices.push_back(vertex);
         }
 
@@ -119,6 +130,6 @@ private:
             }
         }
 
-        return Mesh(vertices, indices);
+        return Mesh(vertices, indices, textures);
     }
 };

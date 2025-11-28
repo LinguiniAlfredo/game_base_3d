@@ -75,15 +75,18 @@ void ShadowMap::init()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void ShadowMap::render_shadow_map()
+void ShadowMap::render_shadow_map() const
 {
-    for(unsigned int i = 0; i < context.entities.size(); i++) {
-        context.entities[i]->render_shadow_map(this->shader);
+    for (const auto &world_block : context.world_blocks) {
+        world_block->render_shadow_map(this->shader);
+    }
+    for (const auto &entity : context.entities) {
+        entity->render_shadow_map(this->shader);
     }
     context.floor->render_shadow_map(this->shader);
 }
 
-void ShadowMap::render_depth_quad()
+void ShadowMap::render_depth_quad() const
 {
     glViewport(0, 0, context.screen_width/4, context.screen_height/4);
     this->depth_quad_shader->use();
