@@ -1,6 +1,7 @@
 #pragma once
 #include "mesh.h"
 #include "../utils/shader.h"
+#include "../utils/collision.h"
 #include <glm/glm.hpp>
 #include <vector>
 using namespace glm;
@@ -13,13 +14,15 @@ struct Floor
     Shader               *shader;
     vec3                 position;
     unsigned int         VAO, VBO, EBO;
+    Collision            *collision;
 
     Floor(const float width, const float length, const vec3 position)
     {
-        this->vertices = get_vertices(width, length);
-        this->indices  = get_indices();
-        this->shader   = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
-        this->position = position;
+        this->vertices  = get_vertices(width, length);
+        this->indices   = get_indices();
+        this->shader    = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
+        this->position  = position;
+        this->collision = new Collision(position, width, 0.f, length);
         init();
     }
 
@@ -116,22 +119,22 @@ private:
         Vertex         vertex{};
         vec3           vector;
         
-        vector = vec3(-width, 0.f, length);
+        vector = vec3(-width/2, 0.f, length/2);
         vertex.position = vector;
         vertex.normal   = vec3(0.f, 1.f, 0.f); // TODO - base normal off orientation
         vertices.push_back(vertex);
 
-        vector = vec3(width, 0.f, length);
+        vector = vec3(width/2, 0.f, length/2);
         vertex.position = vector;
         vertex.normal   = vec3(0.f, 1.f, 0.f);
         vertices.push_back(vertex);
 
-        vector = vec3(width, 0.f, -length);
+        vector = vec3(width/2, 0.f, -length/2);
         vertex.position = vector;
         vertex.normal   = vec3(0.f, 1.f, 0.f);
         vertices.push_back(vertex);
 
-        vector = vec3(-width, 0.f, -length);
+        vector = vec3(-width/2, 0.f, -length/2);
         vertex.position = vector;
         vertex.normal   = vec3(0.f, 1.f, 0.f);
         vertices.push_back(vertex);

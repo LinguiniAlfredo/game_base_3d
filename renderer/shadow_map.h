@@ -1,5 +1,5 @@
 #pragma once
-#include "utils/shader.h"
+#include "../utils/shader.h"
 #include <glm/glm.hpp>
 #include <vector>
 using namespace glm;

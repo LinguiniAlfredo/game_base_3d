@@ -5,6 +5,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "utils/stb_image.h"
+
 #include "utils/timer.h"
 #include "context.h"
 #include "utils/camera.h"
@@ -15,7 +16,8 @@
 #include "entities/skybox.h"
 #include "entities/link.h"
 #include "entities/backpack.h"
-#include "shadow_map.h"
+#include "renderer/shadow_map.h"
+#include "utils/collision.h"
 #include <vector>
 
 SDL_Window   *sdl_window = nullptr;
@@ -32,7 +34,8 @@ Context context = {
     .screen_height          = 1080/2,
     .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = false,
-    .show_shadow_map        = false
+    .show_shadow_map        = false,
+    .show_collisions        = false
 };
 
 vec3 positions[] = {
@@ -111,6 +114,21 @@ void toggle_shadow_map()
     context.show_shadow_map = !context.show_shadow_map;
 }
 
+void toggle_collision_render()
+{
+    context.show_collisions = !context.show_collisions;
+}
+
+void toggle_paused()
+{
+    if (context.mode == PAUSED) {
+        context.mode = GAME;
+    } else {
+        context.mode = PAUSED;
+    }
+
+}
+
 void handle_events(float delta_time)
 {
     SDL_Event e;
@@ -125,11 +143,17 @@ void handle_events(float delta_time)
                 case SDLK_ESCAPE:
                     context.mode = QUIT;
                     break;
+                case SDLK_TAB:
+                    toggle_paused();
+                    break;
                 case SDLK_F1:
                     toggle_wireframe();
                     break;
                 case SDLK_F2:
                     toggle_shadow_map();
+                    break;
+                case SDLK_F3:
+                    toggle_collision_render();
                     break;
             }
         }
@@ -158,11 +182,17 @@ void render()
     context.light_cube->render();
     for(unsigned int i = 0; i < context.entities.size(); i++) {
         context.entities[i]->render();
+        if (context.show_collisions)
+            context.entities[i]->render_collider();
     }
     context.floor->render();
+    if (context.show_collisions) {
+        context.floor->collision->render();
+    }
 
     if (context.show_shadow_map)
         context.shadow_map->render_depth_quad();
+
 
     // draw this last, so fragments behind objects dont get rendered
     // but frig the depth buffer in its shader to pass the depth check
@@ -196,6 +226,7 @@ void game_loop()
                 render();
                 break;
             case PAUSED:
+                render();
                 break;
             case GAMEOVER:
                 break;
@@ -225,15 +256,8 @@ int main(int argc, char **argv)
         context.shadow_map = new ShadowMap();
 
         context.light_cube = new LightCube(vec3(-50.0f, 50.0f, -50.0f));
-        for (int i = 0; i < 100; i++) {
-            static float scale = 10.0f;
-            if (i % 4 == 0) {
-                scale += 5.f;
-            }
-            context.entities.push_back(new Entity("resources/models/sphere.obj", positions[i % 4] * scale));
-        }
         context.entities.push_back(new Backpack(vec3(-5.0f, 0.0f, -5.0f)));
-        context.entities.push_back(new Link(vec3(0.0f, -5.0f, 0.0f),
+        context.entities.push_back(new Link(vec3(0.0f, 0.0f, 0.0f),
                                             angleAxis(radians(180.f),
                                                 vec3(0.f, 1.f, 0.f))));
         context.floor  = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));

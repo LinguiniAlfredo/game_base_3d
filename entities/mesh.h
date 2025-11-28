@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include "../shadow_map.h"
+#include "../renderer/shadow_map.h"
 using namespace glm;
 using namespace std;
 
@@ -38,8 +38,6 @@ struct Mesh
 
     void render_shadow_map(Shader *shadow_map_shader, const vec3 position, const quat orientation, const vec3 scalar) const
     {
-        //shadow_map_shader->use();
-
         mat4 mat_model = mat4(1.0f);
         mat_model = scale(mat_model, scalar);
         mat_model = translate(mat_model, position);

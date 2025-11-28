@@ -36,6 +36,7 @@ typedef struct Context {
     float           ticks_per_frame;
     bool            wireframe;
     bool            show_shadow_map;
+    bool            show_collisions;
 } Context;
 
 extern Context context;

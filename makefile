@@ -5,7 +5,7 @@ LINKER_FLAGS = -lSDL2 -lGL -lGLEW -lm -lassimp
 MINGW_LINKER_FLAGS = -lmingw32 -lSDL2main -lSDL2 -lopengl32 -lglew32 -lm -mwindows
 EXE = game
 
-SRC_DIRS = ./ shaders shapes entities
+SRC_DIRS = ./ shaders shapes entities renderer
 SRCS = $(wildcard $(addsuffix /*.cpp, $(SRC_DIRS)))
 
 BUILD_DIR = ./build

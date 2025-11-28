@@ -1,11 +1,11 @@
 #include "shadow_map.h"
-#include "entities/mesh.h"
-#include "utils/shader.h"
-#include "context.h"
-#include "utils/camera.h"
-#include "shapes/lightcube.h"
-#include "entities/entity.h"
-#include "entities/floor.h"
+#include "../entities/mesh.h"
+#include "../utils/shader.h"
+#include "../context.h"
+#include "../utils/camera.h"
+#include "../shapes/lightcube.h"
+#include "../entities/entity.h"
+#include "../entities/floor.h"
 #include <glm/glm.hpp>
 #include <vector>
 using namespace glm;
@@ -66,7 +66,7 @@ void ShadowMap::init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     float border_color[] = { 1.0, 1.0, 1.0, 1.0 };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
-    
+
     // attach depth texture as FBO's depth glBindBuffer
     glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, this->depth_map, 0);
