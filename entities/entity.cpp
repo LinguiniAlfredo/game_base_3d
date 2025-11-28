@@ -41,7 +41,18 @@ Entity::~Entity()
 void Entity::update(float delta_time)
 {
     this->collision->update(this->target_position, this->target_orientation);
-    if (this->collision->intersects(*context.floor->collision)) {
+
+    bool colliding = false;
+    for (unsigned int i = 0; i < context.entities.size(); i++) {
+        if (context.entities[i] == this) continue;
+        if (this->collision->intersects(*context.entities[i]->collision) || 
+            this->collision->intersects(*context.floor->collision)) {
+                colliding = true;
+                break;
+        }
+    }
+
+    if (colliding) {
         this->collision->update(this->position, this->orientation);
         this->target_position = this->position;
         this->target_orientation = this->orientation;
