@@ -10,7 +10,9 @@ struct Entity
     Model     *model;
     Shader    *shader;
     vec3      position;
+    vec3      target_position;
     quat      orientation;
+    quat      target_orientation;
     vec3      scalar;
     Collision *collision;
 

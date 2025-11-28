@@ -126,7 +126,6 @@ void toggle_paused()
     } else {
         context.mode = PAUSED;
     }
-
 }
 
 void handle_events(float delta_time)
@@ -252,9 +251,7 @@ int main(int argc, char **argv)
 {
     if (initialize() == 0) {
         context.camera = new Camera(vec3(0.0f, 0.0f, -5.0f));
-
         context.shadow_map = new ShadowMap();
-
         context.light_cube = new LightCube(vec3(-50.0f, 50.0f, -50.0f));
         context.entities.push_back(new Backpack(vec3(-5.0f, 0.0f, -5.0f)));
         context.entities.push_back(new Link(vec3(0.0f, 0.0f, 0.0f),

@@ -27,6 +27,7 @@ struct Collision
 
     bool intersects(const Collision &other)
     {
+        // this only validates non-rotated bounding boxes
         this->is_colliding = (fabs(position.x - other.position.x) <= (half_dimensions.x + other.half_dimensions.x)) &&
                              (fabs(position.y - other.position.y) <= (half_dimensions.y + other.half_dimensions.y)) &&
                              (fabs(position.z - other.position.z) <= (half_dimensions.z + other.half_dimensions.z));

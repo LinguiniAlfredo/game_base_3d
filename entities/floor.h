@@ -29,6 +29,7 @@ struct Floor
     ~Floor()
     {
         delete this->shader;
+        delete this->collision;
         glDeleteVertexArrays(1, &this->VAO);
         glDeleteBuffers(1, &this->VBO);
         glDeleteBuffers(1, &this->EBO);

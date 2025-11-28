@@ -1,4 +1,5 @@
 #include "entity.h"
+#include "floor.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 using namespace glm;
@@ -11,15 +12,20 @@ Entity::Entity()
     this->shader      = nullptr;
     this->model       = nullptr;
     this->collision   = nullptr;
+
+    this->target_position = this->position;
+    this->target_orientation = this->orientation;
 }
 
 Entity::Entity(const char *filename, const vec3 position, const quat orientation, const float scale)
 {
-    this->position    = position;
-    this->orientation = orientation;
-    this->scalar      = vec3(scale, scale, scale);
-    this->shader      = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
-    this->model       = new Model(filename);
+    this->position           = position;
+    this->target_position    = position;
+    this->orientation        = orientation;
+    this->target_orientation = orientation;
+    this->scalar             = vec3(scale, scale, scale);
+    this->shader             = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
+    this->model              = new Model(filename);
 
     vec3 dimensions = get_dimensions();
     this->collision   = new Collision(position, dimensions.x, dimensions.y, dimensions.z);
@@ -34,7 +40,15 @@ Entity::~Entity()
 
 void Entity::update(float delta_time)
 {
-    this->collision->update(this->position, this->orientation);
+    this->collision->update(this->target_position, this->target_orientation);
+    if (this->collision->intersects(*context.floor->collision)) {
+        this->collision->update(this->position, this->orientation);
+        this->target_position = this->position;
+        this->target_orientation = this->orientation;
+    } else {
+        this->position    = this->target_position;
+        this->orientation = this->target_orientation;
+    }
 }
 
 void Entity::render_shadow_map(Shader *shadow_map_shader)
