@@ -67,8 +67,8 @@ int initialize()
     }
 
     SDL_ShowCursor(SDL_DISABLE);
-    //SDL_SetWindowGrab(sdl_window, SDL_TRUE);
-    //SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_SetWindowGrab(sdl_window, SDL_TRUE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, context.screen_width, context.screen_height);
