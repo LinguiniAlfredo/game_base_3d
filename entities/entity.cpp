@@ -16,7 +16,7 @@ Entity::Entity()
     this->target_orientation = this->orientation;
 }
 
-Entity::Entity(const char *filename, const vec3 position, const quat orientation, const float scale)
+Entity::Entity(const char *filename, const vec3 position, const quat orientation, const float scale, const char *texture)
 {
     this->position           = position;
     this->target_position    = position;
@@ -24,7 +24,7 @@ Entity::Entity(const char *filename, const vec3 position, const quat orientation
     this->target_orientation = orientation;
     this->scalar             = vec3(scale, scale, scale);
     this->shader             = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
-    this->model              = new Model(filename);
+    this->model              = new Model(filename, texture);
 
     vec3 dimensions = get_dimensions();
     this->collision   = new Collision(position, orientation, dimensions.x, dimensions.y, dimensions.z);

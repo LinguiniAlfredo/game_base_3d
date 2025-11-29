@@ -57,7 +57,7 @@ struct Mesh
     {
         shader->use();
         shader->set_int("shadow_map", 0);
-        shader->set_int("texture", 1);
+        shader->set_int("texture1", 1);
         shader->set_vec3("camera_pos",  context.camera->position);
         shader->set_vec3("light_pos",   context.light_cube->position);
         shader->set_mat4("light_space_matrix", context.shadow_map->light_space_matrix);
@@ -82,8 +82,11 @@ struct Mesh
         glBindTexture(GL_TEXTURE_2D, context.shadow_map->depth_map);
 
         if (this->textures.size() > 0) {
+            shader->set_int("has_texture", GL_TRUE);
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, this->textures[0].id);
+        } else {
+            shader->set_int("has_texture", GL_FALSE);
         }
 
         glBindVertexArray(this->VAO);

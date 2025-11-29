@@ -4,11 +4,15 @@ in VS_OUT {
     vec3 frag_pos;
     vec4 frag_pos_light_space;
     vec3 normal;
+    vec2 tex_coords;
 } fs_in;
 
 out vec4 frag_color;
 
+uniform sampler2D texture1;
 uniform sampler2D shadow_map;
+
+uniform bool has_texture;
 
 uniform vec3 camera_pos;
 uniform vec3 light_pos;
@@ -50,7 +54,13 @@ void main()
     float speculance = 1.0;
     float ambience   = 0.3;
 
-    vec3 color  = mesh_color;
+    vec3 color;
+    if (has_texture) {
+        color = texture(texture1, fs_in.tex_coords).rgb;
+    } else {
+        color  = mesh_color;
+    }
+
     vec3 normal = normalize(fs_in.normal);
     
     vec3 ambient = light_color * ambience;

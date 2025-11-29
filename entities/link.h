@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 using namespace glm;
 
-struct Link : public Entity {
+struct Link : Entity {
 
     Link(const vec3 position = vec3(0.f, 0.f, 0.f),
          const quat orientation = angleAxis(0.f, vec3(0.f, 1.f, 0.f)),
