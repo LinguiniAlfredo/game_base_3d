@@ -1,5 +1,4 @@
 #include "entity.h"
-#include "floor.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 using namespace glm;
@@ -43,10 +42,15 @@ void Entity::update(float delta_time)
     this->collision->update(this->target_position, this->target_orientation);
 
     bool colliding = false;
-    for (unsigned int i = 0; i < context.entities.size(); i++) {
-        if (context.entities[i] == this) continue;
-        if (this->collision->intersects(*context.entities[i]->collision) || 
-            this->collision->intersects(*context.floor->collision)) {
+    for (auto &world_block : context.world_blocks) {
+        if (this->collision->intersects(*world_block->collision)) {
+                colliding = true;
+                break;
+        }
+    }
+    for (auto &entity : context.entities) {
+        if (entity == this) continue;
+        if (this->collision->intersects(*entity->collision)) {
                 colliding = true;
                 break;
         }

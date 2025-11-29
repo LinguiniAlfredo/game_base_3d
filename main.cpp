@@ -11,7 +11,6 @@
 #include "utils/camera.h"
 #include "shapes/lightcube.h"
 #include "entities/entity.h"
-#include "entities/floor.h"
 #include "entities/skybox.h"
 #include "entities/link.h"
 #include "entities/backpack.h"
@@ -19,6 +18,9 @@
 #include "renderer/shadow_map.h"
 #include "utils/collision.h"
 #include <vector>
+
+// TODO - create scene class that allocates all entites for that scene
+//      
 
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
@@ -88,7 +90,6 @@ void close_app()
         delete entity;
     }
 
-    delete context.floor;
     delete context.skybox;
 
     SDL_GL_DeleteContext(opengl_context);
@@ -193,11 +194,6 @@ void render()
             entity->render_collider();
     }
 
-    context.floor->render();
-    if (context.show_collisions) {
-        context.floor->collision->render();
-    }
-
     if (context.show_shadow_map)
         context.shadow_map->render_depth_quad();
 
@@ -258,14 +254,25 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
-        context.camera = new Camera(vec3(0.0f, 0.0f, -5.0f));
+        context.camera = new Camera(vec3(0.0f, 10.0f, -20.0f));
         context.shadow_map = new ShadowMap();
         context.light_cube = new LightCube(vec3(-50.0f, 50.0f, -50.0f));
-        context.entities.push_back(new Backpack(vec3(-5.0f, 0.0f, -5.0f)));
-        context.entities.push_back(new Link(vec3(0.0f, 0.0f, 0.0f)));
-        context.floor  = new Floor(100.f, 100.f, vec3(0.f, -5.f, 0.f));
+        //context.entities.push_back(new Backpack(vec3(-5.0f, 0.0f, -5.0f)));
+        context.entities.push_back(new Link(vec3(5.0f, 20.0f, 0.0f)));
 
-        context.world_blocks.push_back(new Cube(vec3(-10.f, 0.f, 0.f)));
+        
+        for (int i = 1; i < 10; i+=2) {
+            for (int j = 1; j < 10; j+=2) {
+                float x = (float)i;
+                float z = (float)j;
+                context.world_blocks.push_back(new Cube(vec3(x, 0.f, z)));
+                context.world_blocks.push_back(new Cube(vec3(-x, 0.f, -z)));
+                context.world_blocks.push_back(new Cube(vec3(x, 0.f, -z)));
+                context.world_blocks.push_back(new Cube(vec3(-x, 0.f, z)));
+            }
+        }
+        context.world_blocks.push_back(new Cube(vec3(0.f, 4.f, 0.f)));
+
 
         context.skybox = new Skybox();
 

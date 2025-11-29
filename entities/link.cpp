@@ -1,5 +1,4 @@
 #include "link.h"
-#include "floor.h"
 
 void Link::update(float delta_time)
 {
@@ -11,7 +10,7 @@ void Link::update(float delta_time)
     this->target_orientation  = normalize(this->target_orientation);
 
     vec3 gravity          = vec3(0.f, -1.f, 0.f);
-    float speed           = 1.f;
+    float speed           = 9.8;
     this->target_position += gravity * speed * delta_time;
 
     Entity::update(delta_time);

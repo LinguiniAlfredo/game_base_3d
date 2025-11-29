@@ -45,7 +45,7 @@ struct Camera
         this->world_up = up;
         this->yaw = yaw;
         this->pitch = pitch;
-        this->front = vec3(0.0f, 0.0f, -1.0f);
+        this->front = vec3(0.0f, 0.0f, 0.0f);
         this->movement_speed = SPEED;
         this->mouse_sensitivity = SENSITIVITY;
         this->zoom = ZOOM;

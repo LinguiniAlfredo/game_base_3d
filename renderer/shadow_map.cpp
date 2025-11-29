@@ -5,7 +5,6 @@
 #include "../utils/camera.h"
 #include "../shapes/lightcube.h"
 #include "../entities/entity.h"
-#include "../entities/floor.h"
 #include <glm/glm.hpp>
 #include <vector>
 using namespace glm;
@@ -83,7 +82,6 @@ void ShadowMap::render_shadow_map() const
     for (const auto &entity : context.entities) {
         entity->render_shadow_map(this->shader);
     }
-    context.floor->render_shadow_map(this->shader);
 }
 
 void ShadowMap::render_depth_quad() const

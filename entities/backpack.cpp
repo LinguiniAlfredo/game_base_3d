@@ -1,5 +1,4 @@
 #include "backpack.h"
-#include "floor.h"
 
 void Backpack::update(float delta_time)
 {
