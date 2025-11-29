@@ -37,7 +37,7 @@ struct Camera
 
     Frustrum frustrum{};
  
-    explicit Camera(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
+    Camera(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
            const vec3 up = vec3(0.0f, 1.0f, 0.0f),
            const float yaw = YAW, float pitch = PITCH)
     {
@@ -59,6 +59,10 @@ struct Camera
         };
         update_camera_vectors();
     }
+    virtual ~Camera()
+    {
+
+    }
 
     mat4 get_view_matrix() const
     {
@@ -70,7 +74,7 @@ struct Camera
         return perspective(frustrum.fov, frustrum.aspect, frustrum.near, frustrum.far);
     }
 
-    void process_keyboard(const SDL_Event &e)
+    virtual void process_keyboard(const SDL_Event &e)
     {
         if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
             const SDL_Keycode key = e.key.keysym.sym;
@@ -111,7 +115,7 @@ struct Camera
         }
     }
 
-    void move(const float delta_time)
+    virtual void update(const float delta_time)
     {
         this->position += this->trajectory * this->movement_speed * delta_time;
     }
@@ -163,7 +167,7 @@ struct Camera
     }
 
 private:
-    void update_camera_vectors()
+    virtual void update_camera_vectors()
     {
         vec3 f;
         f.x = cos(radians(this->yaw)) * cos(radians(this->pitch));
@@ -172,6 +176,7 @@ private:
         this->front = normalize(f);
         this->right = normalize(cross(this->front, this->world_up));
         this->up    = normalize(cross(this->right, this->front));
+
         this->trajectory = this->input_vector.x * -this->right + this->input_vector.y * this->up + this->input_vector.z * this->front;
     }
 };

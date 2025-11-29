@@ -15,11 +15,14 @@
 #include "entities/link.h"
 #include "entities/cube.h"
 #include "renderer/shadow_map.h"
+#include "utils/player_controller.h"
 #include <vector>
+#include <typeinfo>
 
 // TODO - create scene class that allocates all entites for that scene
 //      - instance all static entities liek world_blocks to one draw call
 //      - calculate near/far planes for shadow map frustrum
+//      - create two derived Camera classes, one for flying/editing, one for player control
 
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
@@ -125,6 +128,19 @@ void toggle_paused()
     }
 }
 
+void toggle_flycam()
+{
+    // store current location orientation first, then change classes
+    if (typeid(*context.camera) == typeid(Camera)) {
+        delete context.camera;
+        context.camera = new PlayerController(vec3(0.0f, 10.0f, -20.0f));
+
+    } else if (typeid(*context.camera) == typeid(PlayerController)) {
+        delete context.camera;
+        context.camera = new Camera(vec3(0.0f, 10.0f, -20.0f));
+    }
+}
+
 void destroy_level()
 {
     for (const auto &world_block : context.world_blocks) {
@@ -192,6 +208,9 @@ void handle_events(const float delta_time)
                 case SDLK_F3:
                     toggle_collision_render();
                     break;
+                case SDLK_F5:
+                    toggle_flycam();
+                    break;
                 case SDLK_1:
                     destroy_level();
                     init_level();
@@ -202,12 +221,11 @@ void handle_events(const float delta_time)
     }
     SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
     context.camera->process_mouse((float)mouse_x, -(float)mouse_y, delta_time);
-
-    context.camera->move(delta_time);
 }
 
 void update(const float delta_time)
 {
+    context.camera->update(delta_time);
     for (const auto &entity : context.entities) {
         entity->update(delta_time);
     }
