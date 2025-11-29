@@ -3,24 +3,51 @@
 
 struct PlayerController : Camera
 {
-    //Collision collision;
-    float     gravity;
+    Collision *collision;
+    vec3      gravity;
+    vec3      target_position;
 
     PlayerController(const vec3 position = vec3(0.0f, 0.0f, 0.0f), const vec3 up = vec3(0.0f, 1.0f, 0.0f), const float yaw = YAW, float pitch = PITCH)
         :Camera(position, up, yaw, pitch)
     {
-        this->gravity   = 9.8f;
-        //this->collision = new Collision(position);
+        this->gravity = vec3(0.f, -9.8f, 0.f);
+        this->collision = new Collision(position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)), 5.f, 10.f, 2.f);
     }
 
     ~PlayerController()
     {
-        //delete this->collision;
+        delete this->collision;
     }
 
     void update(const float delta_time) override
     {
-        this->position += this->trajectory * this->movement_speed * delta_time;
+        this->target_position += this->trajectory * this->movement_speed * delta_time;
+        this->target_position += this->gravity * delta_time;
+
+        this->collision->update(false, this->target_position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)));
+
+        bool colliding = false;
+        for (auto &world_block : context.world_blocks) {
+            if (this->collision->intersects(*world_block->collision)) {
+                world_block->collision->is_colliding = true;
+                colliding = true;
+            } else {
+                world_block->collision->is_colliding = false;
+            }
+        }
+        for (auto &entity : context.entities) {
+            if (this->collision->intersects(*entity->collision)) {
+                colliding = true;
+                break;
+            }
+        }
+
+        if (colliding) {
+            this->collision->update(colliding, this->position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)));
+            this->target_position = this->position;
+        } else {
+            this->position = this->target_position;
+        }
     }
 
     void process_keyboard(const SDL_Event &e) override
@@ -59,6 +86,8 @@ struct PlayerController : Camera
 private:
     void update_camera_vectors() override
     {
+        // we update vectors once without pitch so movement trajectory is bound to the plane
+        // then update vectors again with pitch for looking around
         vec3 f;
         f.x = cos(radians(this->yaw)) * cos(radians(this->pitch));
         f.y = 0.f;

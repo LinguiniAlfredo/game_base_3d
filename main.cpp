@@ -236,6 +236,11 @@ void render()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    if (context.show_collisions && typeid(*context.camera) == typeid(PlayerController)) {
+        PlayerController* player = (PlayerController *)context.camera;
+        player->collision->render();
+    }
+
     context.camera->render_crosshair();
 
     context.shadow_map->do_pass();

@@ -12,7 +12,7 @@ struct Collision
     quat         orientation;
     vec3         half_dimensions;
     vector<vec3> vertices;
-    unsigned int VAO;
+    unsigned int VAO, VBO;
     Shader       *shader;
     bool         is_colliding;
 
@@ -30,6 +30,8 @@ struct Collision
     ~Collision()
     {
         delete this->shader;
+        glDeleteVertexArrays(1, &this->VAO);
+        glDeleteBuffers(1, &this->VBO);
     }
 
     bool intersects(const Collision &other)
@@ -71,7 +73,7 @@ struct Collision
     }
 
 private:
-    [[nodiscard]] vector<vec3> get_vertices() const
+    vector<vec3> get_vertices() const
     {
         vec3 min = -this->half_dimensions;
         vec3 max =  this->half_dimensions;
@@ -97,12 +99,10 @@ private:
 
     void init_vao()
     {
-        unsigned int VBO;
-
         glGenVertexArrays(1, &this->VAO);
-        glGenBuffers(1, &VBO);
+        glGenBuffers(1, &this->VBO);
         glBindVertexArray(this->VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
         glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(vec3), this->vertices.data(), GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)nullptr);
