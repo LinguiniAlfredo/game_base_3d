@@ -20,7 +20,7 @@ struct Vertex
 struct Texture
 {
     unsigned int id;
-    string type;
+    string type, path;
 };
 
 struct Mesh
@@ -57,6 +57,7 @@ struct Mesh
     {
         shader->use();
         shader->set_int("shadow_map", 0);
+        shader->set_int("texture", 1);
         shader->set_vec3("camera_pos",  context.camera->position);
         shader->set_vec3("light_pos",   context.light_cube->position);
         shader->set_mat4("light_space_matrix", context.shadow_map->light_space_matrix);
@@ -79,6 +80,8 @@ struct Mesh
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, context.shadow_map->depth_map);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, this->textures[0].id);
 
         glBindVertexArray(this->VAO);
         glDrawElements(GL_TRIANGLES, (unsigned int)this->indices.size(), GL_UNSIGNED_INT, nullptr);
@@ -102,8 +105,10 @@ private:
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)nullptr);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, normal));
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, tex_coords));
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
 
         glBindVertexArray(0);
     }
