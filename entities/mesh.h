@@ -80,8 +80,11 @@ struct Mesh
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, context.shadow_map->depth_map);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, this->textures[0].id);
+
+        if (this->textures.size() > 0) {
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, this->textures[0].id);
+        }
 
         glBindVertexArray(this->VAO);
         glDrawElements(GL_TRIANGLES, (unsigned int)this->indices.size(), GL_UNSIGNED_INT, nullptr);

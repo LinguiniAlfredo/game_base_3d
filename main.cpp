@@ -13,10 +13,8 @@
 #include "entities/entity.h"
 #include "entities/skybox.h"
 #include "entities/link.h"
-#include "entities/backpack.h"
 #include "entities/cube.h"
 #include "renderer/shadow_map.h"
-#include "utils/collision.h"
 #include <vector>
 
 // TODO - create scene class that allocates all entites for that scene
