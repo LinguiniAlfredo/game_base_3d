@@ -81,17 +81,16 @@ int initialize()
 
 void close_app()
 {
+    delete context.camera;
+    delete context.shadow_map;
     delete context.light_cube;
-
+    delete context.skybox;
     for (const auto &world_block : context.world_blocks) {
         delete world_block;
     }
-
     for (const auto &entity : context.entities) {
         delete entity;
     }
-
-    delete context.skybox;
 
     SDL_GL_DeleteContext(opengl_context);
     SDL_DestroyWindow(sdl_window);
@@ -128,6 +127,45 @@ void toggle_paused()
     }
 }
 
+void destroy_level()
+{
+    for (const auto &world_block : context.world_blocks) {
+        delete world_block;
+    }
+    context.world_blocks.clear();
+
+    for (const auto &entity : context.entities) {
+        delete entity;
+    }
+    context.entities.clear();
+}
+
+void init_level()
+{
+    context.entities.push_back(new Link(vec3(5.0f, 20.0f, 0.0f)));
+    for (int i = 1; i < 10; i+=2) {
+        for (int j = 1; j < 10; j+=2) {
+            float x = (float)i;
+            float z = (float)j;
+            context.world_blocks.push_back(new Cube(vec3(x, 0.f, z)));
+            context.world_blocks.push_back(new Cube(vec3(-x, 0.f, -z)));
+            context.world_blocks.push_back(new Cube(vec3(x, 0.f, -z)));
+            context.world_blocks.push_back(new Cube(vec3(-x, 0.f, z)));
+            if (x == 9) {
+                context.world_blocks.push_back(new Cube(vec3(x, 2.f, z)));
+                context.world_blocks.push_back(new Cube(vec3(-x, 2.f, -z)));
+            }
+            if (z == 9) {
+                context.world_blocks.push_back(new Cube(vec3(x, 2.f, z)));
+                context.world_blocks.push_back(new Cube(vec3(-x, 2.f, -z)));
+            }
+        }
+    }
+    context.world_blocks.push_back(new Cube(vec3(0.f, 4.f, 0.f)));
+    context.world_blocks.push_back(new Cube(vec3(-5.f, 2.f, 5.f)));
+
+}
+
 void handle_events(const float delta_time)
 {
     SDL_Event e;
@@ -153,6 +191,10 @@ void handle_events(const float delta_time)
                     break;
                 case SDLK_F3:
                     toggle_collision_render();
+                    break;
+                case SDLK_1:
+                    destroy_level();
+                    init_level();
                     break;
             }
         }
@@ -248,36 +290,16 @@ void game_loop()
     }
 }
 
+
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
         context.camera = new Camera(vec3(0.0f, 10.0f, -20.0f));
         context.shadow_map = new ShadowMap();
         context.light_cube = new LightCube(vec3(-25.0f, 25.0f, -25.0f));
-        context.entities.push_back(new Link(vec3(5.0f, 20.0f, 0.0f)));
-
-        for (int i = 1; i < 10; i+=2) {
-            for (int j = 1; j < 10; j+=2) {
-                float x = (float)i;
-                float z = (float)j;
-                context.world_blocks.push_back(new Cube(vec3(x, 0.f, z)));
-                context.world_blocks.push_back(new Cube(vec3(-x, 0.f, -z)));
-                context.world_blocks.push_back(new Cube(vec3(x, 0.f, -z)));
-                context.world_blocks.push_back(new Cube(vec3(-x, 0.f, z)));
-                if (x == 9) {
-                    context.world_blocks.push_back(new Cube(vec3(x, 2.f, z)));
-                    context.world_blocks.push_back(new Cube(vec3(-x, 2.f, -z)));
-                }
-                if (z == 9) {
-                    context.world_blocks.push_back(new Cube(vec3(x, 2.f, z)));
-                    context.world_blocks.push_back(new Cube(vec3(-x, 2.f, -z)));
-                }
-            }
-        }
-        context.world_blocks.push_back(new Cube(vec3(0.f, 4.f, 0.f)));
-        context.world_blocks.push_back(new Cube(vec3(-5.f, 2.f, 5.f)));
-
         context.skybox = new Skybox();
+
+        init_level();
 
         game_loop();
     }
