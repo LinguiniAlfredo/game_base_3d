@@ -12,7 +12,7 @@ using namespace glm;
 ShadowMap::ShadowMap()
 {
     this->near_plane = 0.5f;
-    this->far_plane  = 50.f;
+    this->far_plane  = 100.f;
     shader = new Shader("shaders/depth.vert", "shaders/depth.frag");
     depth_quad_shader = new Shader("shaders/depth_quad.vert", "shaders/depth_quad.frag");
     init();
@@ -22,13 +22,15 @@ ShadowMap::~ShadowMap()
 {
     delete shader;
     delete depth_quad_shader;
+    glDeleteBuffers(1, &this->FBO);
+    glDeleteTextures(1, &this->depth_map);
 }
 
 void ShadowMap::do_pass()
 {
     mat4 mat_proj, mat_view;
 
-    mat_proj = ortho(-10.f, 10.f, -10.f, 10.f, this->near_plane, this->far_plane);
+    mat_proj = ortho(-20.f, 20.f, -20.f, 20.f, this->near_plane, this->far_plane);
     mat_view = lookAt(context.light_cube->position, vec3(0.0f), vec3(0.f, 1.f, 0.f));
     this->light_space_matrix = mat_proj * mat_view;
 

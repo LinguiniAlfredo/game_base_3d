@@ -37,6 +37,7 @@ struct Skybox {
         glDeleteVertexArrays(1, &this->VAO);
         glDeleteBuffers(1, &this->VBO);
         glDeleteTextures(1, &this->texture_id);
+        delete this->shader;
     }
 
     void render()

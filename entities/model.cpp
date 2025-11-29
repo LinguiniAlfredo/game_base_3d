@@ -16,6 +16,9 @@ Model::~Model()
         glDeleteVertexArrays(1, &mesh.VAO);
         glDeleteBuffers(1, &mesh.VBO);
         glDeleteBuffers(1, &mesh.EBO);
+        for (auto &texture : mesh.textures) {
+            glDeleteTextures(1, &texture.id);
+        }
     }
 }
 

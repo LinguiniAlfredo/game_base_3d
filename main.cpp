@@ -141,14 +141,17 @@ void destroy_level()
 void init_level()
 {
     context.entities.push_back(new Link(vec3(5.0f, 20.0f, 0.0f)));
-    for (int i = 1; i < 10; i+=2) {
-        for (int j = 1; j < 10; j+=2) {
+
+    // create function for cube grid, pass in dims and origin
+    for (int i = 1; i < 20; i+=2) {
+        for (int j = 1; j < 20; j+=2) {
             float x = (float)i;
             float z = (float)j;
             context.world_blocks.push_back(new Cube(vec3(x, 0.f, z)));
             context.world_blocks.push_back(new Cube(vec3(-x, 0.f, -z)));
             context.world_blocks.push_back(new Cube(vec3(x, 0.f, -z)));
             context.world_blocks.push_back(new Cube(vec3(-x, 0.f, z)));
+
             if (x == 9) {
                 context.world_blocks.push_back(new Cube(vec3(x, 2.f, z)));
                 context.world_blocks.push_back(new Cube(vec3(-x, 2.f, -z)));
@@ -161,7 +164,6 @@ void init_level()
     }
     context.world_blocks.push_back(new Cube(vec3(0.f, 4.f, 0.f)));
     context.world_blocks.push_back(new Cube(vec3(-5.f, 2.f, 5.f)));
-
 }
 
 void handle_events(const float delta_time)
@@ -215,6 +217,8 @@ void render()
 {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    context.camera->render_crosshair();
 
     context.shadow_map->do_pass();
 

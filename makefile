@@ -25,3 +25,11 @@ clean :
 
 count :
 	find . -type f -not -path "./.git/*" -not -path "./resources/*" -print0 | xargs -0 wc -l
+
+debug :
+	valgrind --leak-check=full \
+			 --show-leak-kinds=definite \
+			 --track-origins=yes \
+			 --quiet\
+			 --log-file=debug.txt \
+			 ./game

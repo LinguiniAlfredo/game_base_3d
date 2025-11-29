@@ -7,7 +7,6 @@ typedef struct Cube      Cube;
 typedef struct Camera    Camera;
 typedef struct LightCube LightCube;
 typedef struct Entity    Entity;
-typedef struct Floor     Floor;
 typedef struct Skybox    Skybox;
 typedef struct ShadowMap ShadowMap;
 
@@ -24,12 +23,11 @@ using namespace std;
 
 typedef struct Context {
     ShadowMap       *shadow_map;
-    vector<Cube*>   cubes;
+    Skybox          *skybox;
     LightCube       *light_cube;
     Camera          *camera;
+    vector<Entity*> world_blocks;
     vector<Entity*> entities;
-    Floor           *floor;
-    Skybox          *skybox;
     Gamemode        mode;
     int             screen_width;
     int             screen_height;
@@ -37,7 +35,6 @@ typedef struct Context {
     bool            wireframe;
     bool            show_shadow_map;
     bool            show_collisions;
-    vector<Entity*> world_blocks;
 } Context;
 
 extern Context context;
