@@ -16,9 +16,10 @@ struct Collision
     Shader       *shader;
     bool         is_colliding;
 
-    Collision(vec3 position, float width, float height, float depth)
+    Collision(vec3 position, quat orientation, float width, float height, float depth)
     {
         this->position        = position;
+        this->orientation     = orientation;
         this->half_dimensions = vec3(width/2, height/2, depth/2);
         this->vertices        = get_vertices();
         this->shader          = new Shader("shaders/simple.vert", "shaders/simple.frag");
@@ -34,11 +35,12 @@ struct Collision
     bool intersects(const Collision &other)
     {
         // this only validates non-rotated bounding boxes
-        this->is_colliding = (fabs(position.x - other.position.x) <= (half_dimensions.x + other.half_dimensions.x)) &&
+        bool colliding = false;
+        colliding= (fabs(position.x - other.position.x) <= (half_dimensions.x + other.half_dimensions.x)) &&
                              (fabs(position.y - other.position.y) <= (half_dimensions.y + other.half_dimensions.y)) &&
                              (fabs(position.z - other.position.z) <= (half_dimensions.z + other.half_dimensions.z));
 
-        return this->is_colliding;
+        return colliding;
     }
 
     void render()
@@ -61,8 +63,9 @@ struct Collision
         glBindVertexArray(0);
     }
 
-    void update(vec3 position, quat orientation)
+    void update(bool colliding, vec3 position, quat orientation)
     {
+        this->is_colliding   = colliding;
         this->position    = position;
         this->orientation = orientation;
     }

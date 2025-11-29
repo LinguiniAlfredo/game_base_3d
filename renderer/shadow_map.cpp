@@ -11,8 +11,8 @@ using namespace glm;
 
 ShadowMap::ShadowMap()
 {
-    this->near_plane = 1.f;
-    this->far_plane  = 200.f;
+    this->near_plane = 0.5f;
+    this->far_plane  = 50.f;
     shader = new Shader("shaders/depth.vert", "shaders/depth.frag");
     depth_quad_shader = new Shader("shaders/depth_quad.vert", "shaders/depth_quad.frag");
     init();
@@ -28,7 +28,7 @@ void ShadowMap::do_pass()
 {
     mat4 mat_proj, mat_view;
 
-    mat_proj = ortho(-100.f, 100.f, -100.f, 100.f, this->near_plane, this->far_plane);
+    mat_proj = ortho(-10.f, 10.f, -10.f, 10.f, this->near_plane, this->far_plane);
     mat_view = lookAt(context.light_cube->position, vec3(0.0f), vec3(0.f, 1.f, 0.f));
     this->light_space_matrix = mat_proj * mat_view;
 
@@ -39,13 +39,7 @@ void ShadowMap::do_pass()
     glBindFramebuffer(GL_FRAMEBUFFER, this->FBO);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    // cull the front face of meshes during depth map rendering
-    // prevents peter-panning
-    glCullFace(GL_FRONT);
-
     render_shadow_map();
-
-    glCullFace(GL_BACK);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, context.screen_width, context.screen_height);
@@ -58,7 +52,7 @@ void ShadowMap::init()
     glGenFramebuffers(1, &this->FBO);
     glGenTextures(1, &this->depth_map);
     glBindTexture(GL_TEXTURE_2D, this->depth_map);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, DEPTH_MAP_WIDTH, DEPTH_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, DEPTH_MAP_WIDTH, DEPTH_MAP_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);

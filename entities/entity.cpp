@@ -27,7 +27,7 @@ Entity::Entity(const char *filename, const vec3 position, const quat orientation
     this->model              = new Model(filename);
 
     vec3 dimensions = get_dimensions();
-    this->collision   = new Collision(position, dimensions.x, dimensions.y, dimensions.z);
+    this->collision   = new Collision(position, orientation, dimensions.x, dimensions.y, dimensions.z);
 }
 
 Entity::~Entity()
@@ -39,25 +39,27 @@ Entity::~Entity()
 
 void Entity::update(float delta_time)
 {
-    this->collision->update(this->target_position, this->target_orientation);
+    this->collision->update(false, this->target_position, this->target_orientation);
 
     bool colliding = false;
     for (auto &world_block : context.world_blocks) {
         if (this->collision->intersects(*world_block->collision)) {
-                colliding = true;
-                break;
+            world_block->collision->is_colliding = true;
+            colliding = true;
+        } else {
+            world_block->collision->is_colliding = false;
         }
     }
     for (auto &entity : context.entities) {
         if (entity == this) continue;
         if (this->collision->intersects(*entity->collision)) {
-                colliding = true;
-                break;
+            colliding = true;
+            break;
         }
     }
 
     if (colliding) {
-        this->collision->update(this->position, this->orientation);
+        this->collision->update(colliding, this->position, this->orientation);
         this->target_position = this->position;
         this->target_orientation = this->orientation;
     } else {

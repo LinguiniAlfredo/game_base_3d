@@ -22,7 +22,6 @@ struct Floor
         this->indices   = get_indices();
         this->shader    = new Shader("shaders/lighting.vert", "shaders/lighting.frag");
         this->position  = position;
-        this->collision = new Collision(position, width, 0.f, length);
         init();
     }
 
