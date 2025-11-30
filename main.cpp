@@ -22,15 +22,16 @@
 // TODO - create scene class that allocates all entites for that scene
 //      - instance all static entities liek world_blocks to one draw call
 //      - calculate near/far planes for shadow map frustrum
-//      - create two derived Camera classes, one for flying/editing, one for player control
+//      - make player controller collision a capsule
+//      - fix player controller switching bugs / collision issues
 
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
 
 Context context = {
     .mode                   = GAME,
-    .screen_width           = 1920/2,
-    .screen_height          = 1080/2,
+    .screen_width           = 1920,
+    .screen_height          = 1080,
     .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = false,
     .show_shadow_map        = false,

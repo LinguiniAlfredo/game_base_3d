@@ -37,12 +37,12 @@ struct PlayerController : Camera
 
         this->collision->update(false, this->target_position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)));
 
-        bool colliding = false;
+        bool colliding = check_for_ground();
+
         for (auto &world_block : context.world_blocks) {
             if (this->collision->intersects(*world_block->collision)) {
                 world_block->collision->is_colliding = true;
                 colliding = true;
-                check_for_ground(world_block);
             } else {
                 world_block->collision->is_colliding = false;
             }
@@ -62,11 +62,17 @@ struct PlayerController : Camera
         }
     }
 
-    void check_for_ground(Entity *world_block)
+    bool check_for_ground()
     {
-        if (world_block->position.y < this->position.y) {
-            this->state = GROUNDED;
+        for (auto &world_block : context.world_blocks) {
+            if (world_block->position.y < this->position.y && this->collision->intersects(*world_block->collision)) {
+                world_block->collision->is_colliding = true;
+                this->state = GROUNDED;
+                return true;
+            }
         }
+        this->state = AIRBORNE;
+        return false;
     }
 
     void process_keyboard(const SDL_Event &e) override
