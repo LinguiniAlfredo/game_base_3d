@@ -130,14 +130,16 @@ void toggle_paused()
 
 void toggle_flycam()
 {
-    // store current location orientation first, then change classes
-    if (typeid(*context.camera) == typeid(Camera)) {
+    vec3 position = context.camera->position;
+    vec3 front    = context.camera->front;
+
+    if (typeid(*context.camera) != typeid(PlayerController)) {
         delete context.camera;
-        context.camera = new PlayerController(vec3(0.0f, 10.0f, -20.0f));
+        context.camera = new PlayerController(position, front);
 
     } else if (typeid(*context.camera) == typeid(PlayerController)) {
         delete context.camera;
-        context.camera = new Camera(vec3(0.0f, 10.0f, -20.0f));
+        context.camera = new Camera(position, front);
     }
 }
 

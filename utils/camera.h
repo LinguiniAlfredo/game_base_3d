@@ -38,6 +38,7 @@ struct Camera
     Frustrum frustrum{};
  
     Camera(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
+           const vec3 front = vec3(0.0f, 0.0f, 0.0f),
            const vec3 up = vec3(0.0f, 1.0f, 0.0f),
            const float yaw = YAW, float pitch = PITCH)
     {
@@ -45,7 +46,7 @@ struct Camera
         this->world_up = up;
         this->yaw = yaw;
         this->pitch = pitch;
-        this->front = vec3(0.0f, 0.0f, 0.0f);
+        this->front = front;
         this->movement_speed = SPEED;
         this->mouse_sensitivity = SENSITIVITY;
         this->zoom = ZOOM;

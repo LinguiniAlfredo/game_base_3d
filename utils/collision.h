@@ -65,7 +65,7 @@ struct Collision
         glBindVertexArray(0);
     }
 
-    virtual void update(bool colliding, vec3 position, quat orientation)
+    void update(bool colliding, vec3 position, quat orientation)
     {
         this->is_colliding   = colliding;
         this->position    = position;

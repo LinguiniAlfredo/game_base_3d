@@ -1,17 +1,27 @@
 #include "camera.h"
 #include "collision.h"
 
+enum PlayerState {
+    GROUNDED,
+    AIRBORNE
+};
+
 struct PlayerController : Camera
 {
-    Collision *collision;
-    vec3      gravity;
-    vec3      target_position;
+    Collision   *collision;
+    vec3        gravity;
+    vec3        target_position;
+    PlayerState state;
 
-    PlayerController(const vec3 position = vec3(0.0f, 0.0f, 0.0f), const vec3 up = vec3(0.0f, 1.0f, 0.0f), const float yaw = YAW, float pitch = PITCH)
-        :Camera(position, up, yaw, pitch)
+    PlayerController(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
+                     const vec3 front = vec3(0.0f, 0.0f, 0.0f),
+                     const vec3 up = vec3(0.0f, 1.0f, 0.0f),
+                     const float yaw = YAW, float pitch = PITCH)
+        :Camera(position, front, up, yaw, pitch)
     {
         this->gravity = vec3(0.f, -9.8f, 0.f);
         this->collision = new Collision(position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)), 5.f, 10.f, 2.f);
+        this->state     = AIRBORNE;
     }
 
     ~PlayerController()
@@ -22,7 +32,8 @@ struct PlayerController : Camera
     void update(const float delta_time) override
     {
         this->target_position += this->trajectory * this->movement_speed * delta_time;
-        this->target_position += this->gravity * delta_time;
+        if (this->state == AIRBORNE)
+            this->target_position += this->gravity * delta_time;
 
         this->collision->update(false, this->target_position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)));
 
@@ -31,6 +42,7 @@ struct PlayerController : Camera
             if (this->collision->intersects(*world_block->collision)) {
                 world_block->collision->is_colliding = true;
                 colliding = true;
+                check_for_ground(world_block);
             } else {
                 world_block->collision->is_colliding = false;
             }
@@ -47,6 +59,13 @@ struct PlayerController : Camera
             this->target_position = this->position;
         } else {
             this->position = this->target_position;
+        }
+    }
+
+    void check_for_ground(Entity *world_block)
+    {
+        if (world_block->position.y < this->position.y) {
+            this->state = GROUNDED;
         }
     }
 
