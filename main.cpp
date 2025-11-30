@@ -131,16 +131,15 @@ void toggle_paused()
 
 void toggle_flycam()
 {
-    vec3 position = context.camera->position;
-    vec3 front    = context.camera->front;
+    Camera current_cam = *context.camera;
 
     if (typeid(*context.camera) != typeid(PlayerController)) {
         delete context.camera;
-        context.camera = new PlayerController(position, front);
+        context.camera = new PlayerController(current_cam);
 
     } else if (typeid(*context.camera) == typeid(PlayerController)) {
         delete context.camera;
-        context.camera = new Camera(position, front);
+        context.camera = new Camera(current_cam);
     }
 }
 

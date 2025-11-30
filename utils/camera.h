@@ -60,6 +60,27 @@ struct Camera
         };
         update_camera_vectors();
     }
+
+    Camera(const Camera &other)
+    {
+        this->position          = other.position;
+        this->world_up          = other.up;
+        this->yaw               = other.yaw;
+        this->front             = other.front;
+        this->movement_speed    = SPEED;
+        this->mouse_sensitivity = SENSITIVITY;
+        this->zoom              = ZOOM;
+        this->trajectory        = vec3(0.0f);
+        this->input_vector      = vec3(0.0f);
+        this->frustrum = {
+            .fov    = radians(45.0f),
+            .aspect = static_cast<float>(context.screen_width) / static_cast<float>(context.screen_height),
+            .near   = 0.1f,
+            .far    = 1000.f
+        };
+        update_camera_vectors();
+    }
+
     virtual ~Camera()
     {
 

@@ -24,6 +24,13 @@ struct PlayerController : Camera
         this->state     = AIRBORNE;
     }
 
+    PlayerController(const Camera &other) : Camera(other)
+    {
+        this->gravity = vec3(0.f, -9.8f, 0.f);
+        this->collision = new Collision(position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)), 5.f, 10.f, 2.f);
+        this->state     = AIRBORNE;
+    }
+
     ~PlayerController()
     {
         delete this->collision;
