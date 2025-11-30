@@ -20,14 +20,14 @@ struct PlayerController : Camera
         :Camera(position, front, up, yaw, pitch)
     {
         this->gravity = vec3(0.f, -9.8f, 0.f);
-        this->collision = new Collision(position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)), 5.f, 10.f, 2.f);
+        this->collision = new Collision(position, 2.f, 10.f, 2.f);
         this->state     = AIRBORNE;
     }
 
     PlayerController(const Camera &other) : Camera(other)
     {
         this->gravity = vec3(0.f, -9.8f, 0.f);
-        this->collision = new Collision(position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)), 5.f, 10.f, 2.f);
+        this->collision = new Collision(position, 2.f, 10.f, 2.f);
         this->state     = AIRBORNE;
     }
 
@@ -42,38 +42,44 @@ struct PlayerController : Camera
         if (this->state == AIRBORNE)
             this->target_position += this->gravity * delta_time;
 
-        this->collision->update(false, this->target_position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)));
+        this->collision->position = this->target_position;
 
         bool colliding = check_for_ground();
 
         for (auto &world_block : context.world_blocks) {
-            if (this->collision->intersects(*world_block->collision)) {
-                world_block->collision->is_colliding = true;
+            if (world_block->position.y >= this->position.y && this->collision->intersects(world_block->collision)) {
                 colliding = true;
-            } else {
-                world_block->collision->is_colliding = false;
             }
         }
         for (auto &entity : context.entities) {
-            if (this->collision->intersects(*entity->collision)) {
+            if (this->collision->intersects(entity->collision)) {
                 colliding = true;
                 break;
             }
         }
 
         if (colliding) {
-            this->collision->update(colliding, this->position, angleAxis(0.f, vec3(0.f, 0.f, 0.f)));
-            this->target_position = this->position;
+            resolve_collisions();
         } else {
             this->position = this->target_position;
         }
     }
 
+    void resolve_collisions()
+    {
+        this->collision->position = this->position;
+        this->target_position = this->position;
+        // instead of cancelling out velocity when colliding, project velocity along plane we are colliding with
+        // s = dot(vp, n)
+        // vn = n * s
+        // vw = vp - vn
+    }
+
     bool check_for_ground()
     {
+        // TODO - remove these checked blocks from later collision check
         for (auto &world_block : context.world_blocks) {
-            if (world_block->position.y < this->position.y && this->collision->intersects(*world_block->collision)) {
-                world_block->collision->is_colliding = true;
+            if (world_block->position.y < this->position.y && this->collision->intersects(world_block->collision)) {
                 this->state = GROUNDED;
                 return true;
             }

@@ -14,6 +14,7 @@
 #include "entities/skybox.h"
 #include "entities/link.h"
 #include "entities/cube.h"
+#include "entities/backpack.h"
 #include "renderer/shadow_map.h"
 #include "utils/player_controller.h"
 #include "ui/ui.h"
@@ -24,9 +25,11 @@
 // TODO - create scene class that allocates all entites for that scene
 //      - instance all similar static entities liek world_blocks to one draw call
 //      - calculate near/far planes for shadow map frustrum
-//      - make player controller collision a capsule
-//      - fix collision stickyness
 //      - create text renderer (for ui and debug notifications)
+//      - weird jittering when walking around an object and keeping cursor on it
+//      - camera switching bugs
+//      - fix collision stickyness
+//      - re-color collision boxes for each object correctly
 
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
@@ -136,7 +139,7 @@ void toggle_paused()
 
 void toggle_flycam()
 {
-    Camera current_cam = *context.camera;
+    const Camera current_cam = *context.camera;
 
     if (typeid(*context.camera) != typeid(PlayerController)) {
         delete context.camera;
@@ -164,6 +167,7 @@ void destroy_level()
 void init_level()
 {
     context.entities.push_back(new Link(vec3(5.0f, 20.0f, 0.0f)));
+    context.entities.push_back(new Backpack(vec3(-5.0f, 20.0f, 0.0f)));
 
     // create function for cube grid, pass in dims and origin
     for (int i = 1; i < 20; i+=2) {
@@ -232,8 +236,20 @@ void handle_events(const float delta_time)
     context.camera->process_mouse((float)mouse_x, -(float)mouse_y, delta_time);
 }
 
+void reset_colliders()
+{
+    for (const auto &world_block : context.world_blocks) {
+        world_block->collision->reset();
+    }
+    for (const auto &entity : context.entities) {
+        entity->collision->reset();
+    }
+}
+
 void update(const float delta_time)
 {
+    reset_colliders();
+
     context.camera->update(delta_time);
     for (const auto &entity : context.entities) {
         entity->update(delta_time);

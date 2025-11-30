@@ -16,7 +16,7 @@ Entity::Entity()
     this->target_orientation = this->orientation;
 }
 
-Entity::Entity(const char *filename, const vec3 position, const quat orientation, const float scale, const char *texture, const Shape shape)
+Entity::Entity(const char *filename, const vec3 position, const quat orientation, const float scale, const char *texture)
 {
     this->position           = position;
     this->target_position    = position;
@@ -27,7 +27,7 @@ Entity::Entity(const char *filename, const vec3 position, const quat orientation
     this->model              = new Model(filename, texture);
 
     vec3 dimensions = get_dimensions();
-    this->collision   = new Collision(position, orientation, dimensions.x, dimensions.y, dimensions.z, shape);
+    this->collision   = new Collision(position, dimensions.x, dimensions.y, dimensions.z);
 }
 
 Entity::~Entity()
@@ -39,27 +39,24 @@ Entity::~Entity()
 
 void Entity::update(float delta_time)
 {
-    this->collision->update(false, this->target_position, this->target_orientation);
+    this->collision->position = this->target_position;
 
     bool colliding = false;
     for (auto &world_block : context.world_blocks) {
-        if (this->collision->intersects(*world_block->collision)) {
-            world_block->collision->is_colliding = true;
+        if (this->collision->intersects(world_block->collision)) {
             colliding = true;
-        } else {
-            world_block->collision->is_colliding = false;
         }
     }
     for (auto &entity : context.entities) {
         if (entity == this) continue;
-        if (this->collision->intersects(*entity->collision)) {
+        if (this->collision->intersects(entity->collision)) {
             colliding = true;
             break;
         }
     }
 
     if (colliding) {
-        this->collision->update(colliding, this->position, this->orientation);
+        this->collision->position = this->position;
         this->target_position = this->position;
         this->target_orientation = this->orientation;
     } else {
