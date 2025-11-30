@@ -16,6 +16,8 @@
 #include "entities/cube.h"
 #include "renderer/shadow_map.h"
 #include "utils/player_controller.h"
+#include "ui/ui.h"
+
 #include <vector>
 #include <typeinfo>
 
@@ -23,7 +25,9 @@
 //      - instance all static entities liek world_blocks to one draw call
 //      - calculate near/far planes for shadow map frustrum
 //      - make player controller collision a capsule
-//      - fix player controller switching bugs / collision issues
+//      - fix collision stickyness
+//      - create text renderer (for ui and debug notifications)
+//      - camera crosshair
 
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
@@ -87,6 +91,8 @@ void close_app()
     delete context.shadow_map;
     delete context.light_cube;
     delete context.skybox;
+    delete context.ui;
+
     for (const auto &world_block : context.world_blocks) {
         delete world_block;
     }
@@ -173,6 +179,8 @@ void init_level()
             if (x == 9) {
                 context.world_blocks.push_back(new Cube(vec3(x, 2.f, z)));
                 context.world_blocks.push_back(new Cube(vec3(-x, 2.f, -z)));
+                context.world_blocks.push_back(new Cube(vec3(-x, 4.f, -z)));
+                context.world_blocks.push_back(new Cube(vec3(-x, 6.f, -z)));
             }
             if (z == 9) {
                 context.world_blocks.push_back(new Cube(vec3(x, 2.f, z)));
@@ -238,13 +246,6 @@ void render()
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (context.show_collisions && typeid(*context.camera) == typeid(PlayerController)) {
-        PlayerController* player = (PlayerController *)context.camera;
-        player->collision->render();
-    }
-
-    context.camera->render_crosshair();
-
     context.shadow_map->do_pass();
 
     for (const auto &world_block : context.world_blocks) {
@@ -266,6 +267,9 @@ void render()
     // draw this last, so fragments behind objects dont get rendered
     // but frig the depth buffer in its shader to pass the depth check
     context.skybox->render();
+
+    // we render ui items last so objects dont occlude them
+    context.ui->render();
 
     SDL_GL_SwapWindow(sdl_window);
 }
@@ -321,10 +325,11 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
-        context.camera = new Camera(vec3(0.0f, 10.0f, -20.0f));
+        context.camera     = new Camera(vec3(0.0f, 10.0f, -20.0f));
         context.shadow_map = new ShadowMap();
         context.light_cube = new LightCube(vec3(-25.0f, 25.0f, -25.0f));
-        context.skybox = new Skybox();
+        context.skybox     = new Skybox();
+        context.ui         = new UI();
 
         init_level();
 

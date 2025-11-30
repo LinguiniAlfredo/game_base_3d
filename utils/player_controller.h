@@ -95,7 +95,7 @@ struct PlayerController : Camera
             if (key == SDLK_d)
                 this->input_vector.x = -1;
             if (key == SDLK_LSHIFT)
-                this->movement_speed = SPEED * 4;
+                this->movement_speed = SPEED * 2;
         }
         if (e.type == SDL_KEYUP && e.key.repeat == 0) {
             const SDL_Keycode key = e.key.keysym.sym;

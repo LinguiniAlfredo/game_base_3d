@@ -169,25 +169,6 @@ struct Camera
             zoom = 45.0f;
     }
 
-    void render_crosshair()
-    {
-        float center_x = context.screen_width / 2;
-        float center_y = context.screen_height / 2;
-        float crosshair_size = 5;
-
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);  // Set orthographic projection (2D space)
-        glMatrixMode(GL_MODELVIEW);
-
-        glBegin(GL_LINES);
-        glVertex2f(center_x - crosshair_size, center_y);
-        glVertex2f(center_x + crosshair_size, center_y);
-        glVertex2f(center_x, center_y - crosshair_size);
-        glVertex2f(center_x, center_y + crosshair_size);
-        glEnd();
-    }
-
 private:
     virtual void update_camera_vectors()
     {

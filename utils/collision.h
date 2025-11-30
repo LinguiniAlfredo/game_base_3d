@@ -6,6 +6,11 @@
 using namespace glm;
 using namespace std;
 
+enum Shape {
+    CUBE,
+    CAPSULE
+};
+
 struct Collision
 {
     vec3         position;
@@ -16,12 +21,12 @@ struct Collision
     Shader       *shader;
     bool         is_colliding;
 
-    Collision(vec3 position, quat orientation, float width, float height, float depth)
+    Collision(vec3 position, quat orientation, float width, float height, float depth, Shape shape = CUBE)
     {
         this->position        = position;
         this->orientation     = orientation;
-        this->half_dimensions = vec3(width/2, height/2, depth/2);
-        this->vertices        = get_vertices();
+        this->half_dimensions = vec3(width*0.5f, height*0.5f, depth*0.5f);
+        this->vertices        = get_vertices(shape);
         this->shader          = new Shader("shaders/simple.vert", "shaders/simple.frag");
         this->is_colliding    = false;
         init_vao();
@@ -73,7 +78,33 @@ struct Collision
     }
 
 private:
-    vector<vec3> get_vertices() const
+    vector<vec3> get_vertices(Shape shape)
+    {
+        vector<vec3> vertices;
+        switch (shape) {
+            case CUBE:
+                vertices = get_cube_vertices();
+                break;
+            case CAPSULE:
+                vertices = get_capsule_vertices();
+                break;
+        }
+        return vertices;
+    }
+
+    void init_vao()
+    {
+        glGenVertexArrays(1, &this->VAO);
+        glGenBuffers(1, &this->VBO);
+        glBindVertexArray(this->VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+        glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(vec3), this->vertices.data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)nullptr);
+        glBindVertexArray(0);
+    }
+
+    vector<vec3> get_cube_vertices()
     {
         vec3 min = -this->half_dimensions;
         vec3 max =  this->half_dimensions;
@@ -93,19 +124,21 @@ private:
             {min.x, max.y, min.z}, {min.x, max.y, max.z},
             {max.x, max.y, min.z}, {max.x, max.y, max.z},
         };
-        
         return vertices;
     }
 
-    void init_vao()
+    vector<vec3> get_capsule_vertices()
     {
-        glGenVertexArrays(1, &this->VAO);
-        glGenBuffers(1, &this->VBO);
-        glBindVertexArray(this->VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
-        glBufferData(GL_ARRAY_BUFFER, this->vertices.size() * sizeof(vec3), this->vertices.data(), GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), (void *)nullptr);
-        glBindVertexArray(0);
+        Model *model = new Model("resources/models/capsule.obj");
+        vector<vec3> vertices;
+
+        for (auto &mesh : model->meshes) {
+            for (auto &vertex : mesh.vertices) {
+                vertices.push_back(vertex.position);
+            }
+        }
+
+        delete model;
+        return vertices;
     }
 };

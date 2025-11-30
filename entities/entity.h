@@ -10,18 +10,19 @@ struct Entity
     Model     *model;
     Shader    *shader;
     Collision *collision;
-    vec3      position;
-    vec3      target_position;
-    quat      orientation;
-    quat      target_orientation;
-    vec3      scalar;
+    vec3       position;
+    vec3       target_position;
+    quat       orientation;
+    quat       target_orientation;
+    vec3       scalar;
 
     Entity();
     Entity(const char *filename,
-           const vec3 position = vec3(0.f, 0.f, 0.f),
-           const quat orientation = angleAxis(0.f, vec3(0.f, 1.f, 0.f)),
+           const vec3  position = vec3(0.f, 0.f, 0.f),
+           const quat  orientation = angleAxis(0.f, vec3(0.f, 1.f, 0.f)),
            const float scale = 1.f,
-           const char *texture_path = "");
+           const char *texture_path = "",
+           const Shape shape = CUBE);
     virtual ~Entity();
 
     virtual void update(float delta_time);
