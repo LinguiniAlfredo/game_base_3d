@@ -22,12 +22,11 @@
 #include <typeinfo>
 
 // TODO - create scene class that allocates all entites for that scene
-//      - instance all static entities liek world_blocks to one draw call
+//      - instance all similar static entities liek world_blocks to one draw call
 //      - calculate near/far planes for shadow map frustrum
 //      - make player controller collision a capsule
 //      - fix collision stickyness
 //      - create text renderer (for ui and debug notifications)
-//      - camera crosshair
 
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
