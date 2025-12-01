@@ -30,14 +30,15 @@
 //      - camera switching bugs
 //      - fix collision stickyness
 //      - re-color collision boxes for each object correctly
+//      - add pause menu with options for resolution, mouse sensitivity etc.
 
 SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
 
 Context context = {
     .mode                   = GAME,
-    .screen_width           = 1920,
-    .screen_height          = 1080,
+    .screen_width           = 1920/2,
+    .screen_height          = 1080/2,
     .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = false,
     .show_shadow_map        = false,
@@ -301,7 +302,6 @@ void game_loop()
     timer_start(&fps_cap_timer);
 
     while (context.mode != QUIT) {
-        fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         current_frame++;
 
         handle_events(delta_time);
@@ -328,11 +328,11 @@ void game_loop()
         if (ticks < context.ticks_per_frame)
             SDL_Delay(context.ticks_per_frame - ticks);
 
-        if (fps > 0)
-            delta_time = 1 / fps;
-        
-        //printf("FPS: %f\n", fps);
+        delta_time = timer_get_ticks(&fps_cap_timer) / 1000.f;
+        fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         timer_start(&fps_cap_timer);
+
+        printf("FPS: %f\n", fps);
     }
 }
 
@@ -340,7 +340,7 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
-        context.camera     = new Camera(vec3(0.0f, 10.0f, -20.0f));
+        context.camera     = new PlayerController(vec3(0.0f, 10.0f, -20.0f));
         context.shadow_map = new ShadowMap();
         context.light_cube = new LightCube(vec3(-25.0f, 25.0f, -25.0f));
         context.skybox     = new Skybox();

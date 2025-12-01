@@ -10,7 +10,7 @@ using namespace glm;
 constexpr float YAW         = 90.0f;
 constexpr float PITCH       = 0.0f;
 constexpr float SPEED       = 10.f;
-constexpr float SENSITIVITY = 0.1f;
+constexpr float SENSITIVITY = 5.f;
 constexpr float ZOOM        = 45.0f;
 
 struct Frustrum {
@@ -38,7 +38,7 @@ struct Camera
     Frustrum frustrum{};
  
     Camera(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
-           const vec3 front = vec3(0.0f, 0.0f, 0.0f),
+           const vec3 front = vec3(0.0f, 0.0f, 1.0f),
            const vec3 up = vec3(0.0f, 1.0f, 0.0f),
            const float yaw = YAW, float pitch = PITCH)
     {
@@ -144,8 +144,8 @@ struct Camera
 
     void process_mouse(float x_offset, float y_offset, float delta_time, GLboolean constrain_pitch = true)
     {
-        x_offset *= this->mouse_sensitivity;
-        y_offset *= this->mouse_sensitivity;
+        x_offset *= this->mouse_sensitivity * delta_time;
+        y_offset *= this->mouse_sensitivity * delta_time;
 
         this->yaw   += x_offset;
         this->pitch += y_offset;
