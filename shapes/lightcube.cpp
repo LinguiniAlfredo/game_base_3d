@@ -79,6 +79,11 @@ void LightCube::render()
     this->shader->use();
 
     mat4 mat_model = mat4(1.0f);
+    //float rad = 22.3f;
+    //float pos_x = sin(SDL_GetTicks() / 1000.f) * rad;
+    //float pos_z = cos(SDL_GetTicks() / 1000.f) * rad;
+    //this->position = vec3(pos_x, this->position.y, pos_z);
+
     mat_model      = translate(mat_model, this->position);
  
     mat4 mat_view  = context.camera->get_view_matrix();

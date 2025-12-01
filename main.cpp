@@ -255,7 +255,8 @@ void reset_colliders()
 
 void update(const float delta_time)
 {
-    reset_colliders();
+    if (context.show_collisions)
+        reset_colliders();
 
     context.camera->update(delta_time);
     for (const auto &entity : context.entities) {
@@ -346,7 +347,7 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
-        context.camera     = new Camera(vec3(0.0f, 10.0f, 20.0f));
+        context.camera     = new PlayerController(vec3(0.0f, 10.0f, 20.0f));
         context.shadow_map = new ShadowMap();
         context.light_cube = new LightCube(vec3(-25.0f, 25.0f, -25.0f));
         context.skybox     = new Skybox();
