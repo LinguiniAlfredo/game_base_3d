@@ -73,17 +73,17 @@ private:
         vector<vec2> vertices;
         float center_x = context.screen_width * 0.5f;
         float center_y = context.screen_height * 0.5f;
-        float crosshair_size = 10.f;
-        float center_size = 10.f;
+        float line_size = 6.f;
+        float center_size = 4.f;
 
-        vertices.push_back(vec2(center_x, center_y + crosshair_size));
-        vertices.push_back(vec2(center_x, center_y + center_size + crosshair_size));
-        vertices.push_back(vec2(center_x, center_y - crosshair_size));
-        vertices.push_back(vec2(center_x, center_y - center_size - crosshair_size));
-        vertices.push_back(vec2(center_x + crosshair_size, center_y));
-        vertices.push_back(vec2(center_x + center_size + crosshair_size, center_y));
-        vertices.push_back(vec2(center_x - crosshair_size, center_y));
-        vertices.push_back(vec2(center_x - center_size - crosshair_size, center_y));
+        vertices.push_back(vec2(center_x, center_y + center_size));
+        vertices.push_back(vec2(center_x, center_y + center_size + line_size));
+        vertices.push_back(vec2(center_x, center_y - center_size));
+        vertices.push_back(vec2(center_x, center_y - center_size - line_size));
+        vertices.push_back(vec2(center_x + center_size, center_y));
+        vertices.push_back(vec2(center_x + center_size + line_size, center_y));
+        vertices.push_back(vec2(center_x - center_size, center_y));
+        vertices.push_back(vec2(center_x - center_size - line_size, center_y));
 
         return vertices;
     }

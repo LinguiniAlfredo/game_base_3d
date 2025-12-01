@@ -29,7 +29,6 @@
 //      - weird jittering when walking around an object and keeping cursor on it
 //      - camera switching bugs
 //      - fix collision stickyness
-//      - re-color collision boxes for each object correctly
 //      - add pause menu with options for resolution, mouse sensitivity etc.
 
 SDL_Window   *sdl_window = nullptr;
@@ -37,8 +36,8 @@ SDL_GLContext opengl_context;
 
 Context context = {
     .mode                   = GAME,
-    .screen_width           = 1920/2,
-    .screen_height          = 1080/2,
+    .screen_width           = 1920,
+    .screen_height          = 1080,
     .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = false,
     .show_shadow_map        = false,
@@ -340,7 +339,7 @@ void game_loop()
 int main(int argc, char **argv)
 {
     if (initialize() == 0) {
-        context.camera     = new PlayerController(vec3(0.0f, 10.0f, -20.0f));
+        context.camera     = new Camera(vec3(0.0f, 10.0f, 20.0f));
         context.shadow_map = new ShadowMap();
         context.light_cube = new LightCube(vec3(-25.0f, 25.0f, -25.0f));
         context.skybox     = new Skybox();

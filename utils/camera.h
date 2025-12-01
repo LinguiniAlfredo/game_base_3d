@@ -10,7 +10,7 @@ using namespace glm;
 constexpr float YAW         = 90.0f;
 constexpr float PITCH       = 0.0f;
 constexpr float SPEED       = 10.f;
-constexpr float SENSITIVITY = 5.f;
+constexpr float SENSITIVITY = 6.5f;
 constexpr float ZOOM        = 45.0f;
 
 struct Frustrum {
