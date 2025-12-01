@@ -38,7 +38,7 @@ struct Camera
     Frustrum frustrum{};
  
     Camera(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
-           const vec3 front = vec3(0.0f, 0.0f, 1.0f),
+           const vec3 front = vec3(0.0f, 0.0f, -1.0f),
            const vec3 up = vec3(0.0f, 1.0f, 0.0f),
            const float yaw = YAW, float pitch = PITCH)
     {
@@ -103,11 +103,11 @@ struct Camera
             if (key == SDLK_w)
                 this->input_vector.z = 1;
             if (key == SDLK_a)
-                this->input_vector.x = 1;
+                this->input_vector.x = -1;
             if (key == SDLK_s)
                 this->input_vector.z = -1;
             if (key == SDLK_d)
-                this->input_vector.x = -1;
+                this->input_vector.x = 1;
             if (key == SDLK_q)
                 this->input_vector.y = -1;
             if (key == SDLK_e)
@@ -139,6 +139,7 @@ struct Camera
 
     virtual void update(const float delta_time)
     {
+        update_camera_vectors();
         this->position += this->trajectory * this->movement_speed * delta_time;
     }
 
@@ -156,8 +157,6 @@ struct Camera
             if (this->pitch < -89.0f)
                 this->pitch = -89.0f;
         }
-
-        update_camera_vectors();
     }
 
     void process_mouse_scroll(float y_offset)
@@ -180,6 +179,6 @@ private:
         this->right = normalize(cross(this->front, this->world_up));
         this->up    = normalize(cross(this->right, this->front));
 
-        this->trajectory = this->input_vector.x * -this->right + this->input_vector.y * this->up + this->input_vector.z * this->front;
+        this->trajectory = this->input_vector.x * this->right + this->input_vector.y * this->up + this->input_vector.z * this->front;
     }
 };

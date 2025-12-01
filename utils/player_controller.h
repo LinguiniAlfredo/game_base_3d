@@ -14,7 +14,7 @@ struct PlayerController : Camera
     PlayerState state;
 
     PlayerController(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
-                     const vec3 front = vec3(0.0f, 0.0f, 0.0f),
+                     const vec3 front = vec3(0.0f, 0.0f, -1.0f),
                      const vec3 up = vec3(0.0f, 1.0f, 0.0f),
                      const float yaw = YAW, float pitch = PITCH)
         :Camera(position, front, up, yaw, pitch)
@@ -38,6 +38,8 @@ struct PlayerController : Camera
 
     void update(const float delta_time) override
     {
+        update_camera_vectors();
+
         this->target_position += this->trajectory * this->movement_speed * delta_time;
         if (this->state == AIRBORNE)
             this->target_position += this->gravity * delta_time;

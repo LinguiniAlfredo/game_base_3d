@@ -30,14 +30,14 @@
 //      - camera switching bugs
 //      - fix collision stickyness
 //      - add pause menu with options for resolution, mouse sensitivity etc.
+//      - add renderer abstraction, create_quad_vertices(), init_vao(vertices), etc.
 
-SDL_Window   *sdl_window = nullptr;
 SDL_GLContext opengl_context;
 
 Context context = {
     .mode                   = GAME,
-    .screen_width           = 1920,
-    .screen_height          = 1080,
+    .screen_width           = 1920/2,
+    .screen_height          = 1080/2,
     .ticks_per_frame        = 1000.f / 144.0f,
     .wireframe              = false,
     .show_shadow_map        = false,
@@ -58,15 +58,15 @@ int initialize()
         return 1;
     }
 
-    sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,
+    context.window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,
                                 SDL_WINDOWPOS_UNDEFINED, context.screen_width,
                                 context.screen_height, SDL_WINDOW_OPENGL);
-    if (sdl_window == nullptr) {
+    if (context.window == nullptr) {
         printf("window could not be created... %s\n", SDL_GetError());
         return 1;
     }
 
-    opengl_context = SDL_GL_CreateContext(sdl_window);
+    opengl_context = SDL_GL_CreateContext(context.window);
     if (opengl_context == nullptr) {
         printf("opengl context could not be created... %s\n", SDL_GetError());
         return 1;
@@ -77,8 +77,8 @@ int initialize()
         return 1;
     }
 
-    SDL_ShowCursor(SDL_DISABLE);
-    SDL_SetWindowGrab(sdl_window, SDL_TRUE);
+    SDL_ShowCursor(SDL_ENABLE);
+    SDL_SetWindowGrab(context.window, SDL_TRUE);
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glEnable(GL_DEPTH_TEST);
@@ -103,7 +103,7 @@ void close_app()
     }
 
     SDL_GL_DeleteContext(opengl_context);
-    SDL_DestroyWindow(sdl_window);
+    SDL_DestroyWindow(context.window);
 
     SDL_Quit();
 }
@@ -131,8 +131,14 @@ void toggle_collision_render()
 void toggle_paused()
 {
     if (context.mode == PAUSED) {
+        SDL_ShowCursor(SDL_DISABLE);
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        SDL_WarpMouseInWindow(context.window, (float)context.screen_width * 0.5, (float)context.screen_height * 0.5f);
         context.mode = GAME;
     } else {
+        SDL_ShowCursor(SDL_ENABLE);
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        SDL_WarpMouseInWindow(context.window, (float)context.screen_width * 0.5, (float)context.screen_height * 0.5f);
         context.mode = PAUSED;
     }
 }
@@ -200,6 +206,8 @@ void handle_events(const float delta_time)
     SDL_Event e;
     int mouse_x, mouse_y;
 
+    SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT)
             context.mode = QUIT;
@@ -232,8 +240,8 @@ void handle_events(const float delta_time)
         }
         context.camera->process_keyboard(e);
     }
-    SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
-    context.camera->process_mouse((float)mouse_x, -(float)mouse_y, delta_time);
+    if (context.mode != PAUSED)
+        context.camera->process_mouse((float)mouse_x, -(float)mouse_y, delta_time);
 }
 
 void reset_colliders()
@@ -286,7 +294,7 @@ void render()
     // we render ui items last so objects dont occlude them
     context.ui->render();
 
-    SDL_GL_SwapWindow(sdl_window);
+    SDL_GL_SwapWindow(context.window);
 }
 
 void game_loop()

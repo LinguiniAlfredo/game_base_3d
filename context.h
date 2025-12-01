@@ -23,6 +23,7 @@ typedef enum {
 using namespace std;
 
 typedef struct Context {
+    SDL_Window      *window;
     ShadowMap       *shadow_map;
     Skybox          *skybox;
     LightCube       *light_cube;
