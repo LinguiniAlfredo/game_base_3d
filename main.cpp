@@ -145,15 +145,17 @@ void toggle_paused()
 void toggle_flycam()
 {
     const Camera current_cam = *context.camera;
+    Camera *new_cam = nullptr;
 
     if (typeid(*context.camera) != typeid(PlayerController)) {
-        delete context.camera;
-        context.camera = new PlayerController(current_cam);
+        new_cam = new PlayerController(current_cam);
 
     } else if (typeid(*context.camera) == typeid(PlayerController)) {
-        delete context.camera;
-        context.camera = new Camera(current_cam);
+        new_cam = new Camera(current_cam);
     }
+
+    delete context.camera;
+    context.camera = new_cam;
 }
 
 void destroy_level()
@@ -339,7 +341,7 @@ void game_loop()
         fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         timer_start(&fps_cap_timer);
 
-        printf("FPS: %f\n", fps);
+        //printf("FPS: %f\n", fps);
     }
 }
 

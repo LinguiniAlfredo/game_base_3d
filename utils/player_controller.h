@@ -26,9 +26,10 @@ struct PlayerController : Camera
 
     PlayerController(const Camera &other) : Camera(other)
     {
-        this->gravity = vec3(0.f, -9.8f, 0.f);
-        this->collision = new Collision(position, 2.f, 10.f, 2.f);
-        this->state     = AIRBORNE;
+        this->gravity         = vec3(0.f, -9.8f, 0.f);
+        this->collision       = new Collision(position, 2.f, 10.f, 2.f);
+        this->state           = AIRBORNE;
+        this->target_position = this->position;
     }
 
     ~PlayerController()
