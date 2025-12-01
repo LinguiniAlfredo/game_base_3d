@@ -42,16 +42,16 @@ struct Camera
            const vec3 up = vec3(0.0f, 1.0f, 0.0f),
            const float yaw = YAW, float pitch = PITCH)
     {
-        this->position = position;
-        this->world_up = up;
-        this->yaw = yaw;
-        this->pitch = pitch;
-        this->front = front;
-        this->movement_speed = SPEED;
+        this->position          = position;
+        this->world_up          = up;
+        this->yaw               = yaw;
+        this->pitch             = pitch;
+        this->front             = front;
+        this->movement_speed    = SPEED;
         this->mouse_sensitivity = SENSITIVITY;
-        this->zoom = ZOOM;
-        this->trajectory = vec3(0.0f, 0.0f, 0.0f);
-        this->input_vector = vec3(0.0f, 0.0f, 0.0f);
+        this->zoom              = ZOOM;
+        this->trajectory        = vec3(0.0f, 0.0f, 0.0f);
+        this->input_vector      = vec3(0.0f, 0.0f, 0.0f);
         this->frustrum = {
             .fov    = radians(45.0f),
             .aspect = static_cast<float>(context.screen_width) / static_cast<float>(context.screen_height),
@@ -64,21 +64,18 @@ struct Camera
     Camera(const Camera &other)
     {
         this->position          = other.position;
-        this->world_up          = other.up;
+        this->world_up          = vec3(0.0f, 1.0f, 0.0f);
         this->yaw               = other.yaw;
+        this->pitch             = other.pitch;
         this->front             = other.front;
-        this->movement_speed    = SPEED;
-        this->mouse_sensitivity = SENSITIVITY;
-        this->zoom              = ZOOM;
-        this->trajectory        = vec3(0.0f);
-        this->input_vector      = vec3(0.0f);
-        this->frustrum = {
-            .fov    = radians(45.0f),
-            .aspect = static_cast<float>(context.screen_width) / static_cast<float>(context.screen_height),
-            .near   = 0.1f,
-            .far    = 1000.f
-        };
-        update_camera_vectors();
+        this->movement_speed    = other.movement_speed;
+        this->mouse_sensitivity = other.mouse_sensitivity;
+        this->zoom              = other.zoom;
+        this->trajectory        = other.trajectory;
+        this->input_vector      = other.input_vector;
+        this->frustrum          = other.frustrum;
+        this->right             = other.right;
+        this->up                = other.up;
     }
 
     virtual ~Camera()
