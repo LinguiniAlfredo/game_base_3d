@@ -52,7 +52,6 @@ struct PlayerController : Camera
 
         colliding = false;
         this->collision->position += this->trajectory * this->movement_speed * delta_time;
-        printf("%d\n", this->state);
 
         for (auto &world_block : context.world_blocks) {
             if (this->collision->intersects(world_block->collision)) {
