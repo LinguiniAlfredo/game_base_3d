@@ -27,7 +27,6 @@
 //      - calculate near/far planes for shadow map frustrum
 //      - add pause menu with options for resolution, mouse sensitivity etc.
 //      - add renderer abstraction, create_quad_vertices(), init_vao(vertices), render_text(""), etc.
-//      - weird jittering when walking around an object and keeping cursor on it
 //      - fix collision stickyness
 
 SDL_GLContext opengl_context;
