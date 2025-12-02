@@ -25,11 +25,10 @@
 // TODO - create scene class that allocates all entites for that scene
 //      - instance all similar static entities liek world_blocks to one draw call
 //      - calculate near/far planes for shadow map frustrum
-//      - weird jittering when walking around an object and keeping cursor on it
-//      - camera switching bugs
-//      - fix collision stickyness
 //      - add pause menu with options for resolution, mouse sensitivity etc.
 //      - add renderer abstraction, create_quad_vertices(), init_vao(vertices), render_text(""), etc.
+//      - weird jittering when walking around an object and keeping cursor on it
+//      - fix collision stickyness
 
 SDL_GLContext opengl_context;
 

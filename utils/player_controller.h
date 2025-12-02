@@ -10,7 +10,6 @@ struct PlayerController : Camera
 {
     Collision   *collision;
     vec3        gravity;
-    vec3        target_position;
     PlayerState state;
 
     PlayerController(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
@@ -19,9 +18,9 @@ struct PlayerController : Camera
                      const float yaw = YAW, float pitch = PITCH)
         :Camera(position, front, up, yaw, pitch)
     {
-        this->gravity = vec3(0.f, -9.8f, 0.f);
-        this->collision = new Collision(position, 2.f, 10.f, 2.f);
-        this->state     = AIRBORNE;
+        this->gravity         = vec3(0.f, -9.8f, 0.f);
+        this->collision       = new Collision(position, 2.f, 10.f, 2.f);
+        this->state           = AIRBORNE;
     }
 
     PlayerController(const Camera &other) : Camera(other)
@@ -29,7 +28,6 @@ struct PlayerController : Camera
         this->gravity         = vec3(0.f, -9.8f, 0.f);
         this->collision       = new Collision(position, 2.f, 10.f, 2.f);
         this->state           = AIRBORNE;
-        this->target_position = this->position;
     }
 
     ~PlayerController()
@@ -39,18 +37,25 @@ struct PlayerController : Camera
 
     void update(const float delta_time) override
     {
+        bool colliding = false;
         update_camera_vectors();
 
-        this->target_position += this->trajectory * this->movement_speed * delta_time;
-        if (this->state == AIRBORNE)
-            this->target_position += this->gravity * delta_time;
+        if (AIRBORNE)
+            this->collision->position += this->gravity * delta_time;
+        colliding = check_for_ground();
 
-        this->collision->position = this->target_position;
+        if (colliding) {
+            resolve_collisions();
+        } else {
+            this->position = this->collision->position;
+        }
 
-        bool colliding = check_for_ground();
+        colliding = false;
+        this->collision->position += this->trajectory * this->movement_speed * delta_time;
+        printf("%d\n", this->state);
 
         for (auto &world_block : context.world_blocks) {
-            if (world_block->position.y >= this->position.y && this->collision->intersects(world_block->collision)) {
+            if (this->collision->intersects(world_block->collision)) {
                 colliding = true;
             }
         }
@@ -60,18 +65,17 @@ struct PlayerController : Camera
                 break;
             }
         }
-
         if (colliding) {
             resolve_collisions();
         } else {
-            this->position = this->target_position;
+            this->position = this->collision->position;
         }
+
     }
 
     void resolve_collisions()
     {
         this->collision->position = this->position;
-        this->target_position = this->position;
         // instead of cancelling out velocity when colliding, project velocity along plane we are colliding with
         // s = dot(vp, n)
         // vn = n * s
