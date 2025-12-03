@@ -45,17 +45,19 @@ struct PlayerController : Camera
         colliding = check_for_ground();
 
         if (colliding) {
-            resolve_collisions();
+            resolve_collisions_floor();
         } else {
             this->position = this->collision->position;
         }
 
         colliding = false;
-        this->collision->position += this->trajectory * this->movement_speed * delta_time;
+        vec3 velocity = this->trajectory * this->movement_speed * delta_time;
+        this->collision->position += velocity;
 
         for (auto &world_block : context.world_blocks) {
             if (this->collision->intersects(world_block->collision)) {
                 colliding = true;
+                break;
             }
         }
         for (auto &entity : context.entities) {
@@ -65,27 +67,39 @@ struct PlayerController : Camera
             }
         }
         if (colliding) {
-            resolve_collisions();
-        } else {
-            this->position = this->collision->position;
+            velocity = resolve_collisions(velocity);
+            this->collision->position = this->position;
+            this->collision->position += velocity;
         }
+        this->position = this->collision->position;
 
     }
 
-    void resolve_collisions()
+    void resolve_collisions_floor()
     {
         this->collision->position = this->position;
-        // instead of cancelling out velocity when colliding, project velocity along plane we are colliding with
+    }
+
+    vec3 resolve_collisions(vec3 velocity)
+    {
+        // instead of cancelling out velocity when colliding, project trajectory along plane we are colliding with
         // s = dot(vp, n)
         // vn = n * s
         // vw = vp - vn
+        float normal_component = dot(velocity, this->collision->normal);
+        printf("velocity: %f, %f, %f\n", velocity.x, velocity.y, velocity.z);
+        printf("normal:   %f, %f, %f\n", this->collision->normal.x, this->collision->normal.y, this->collision->normal.z);
+        printf("dot: %f\n", normal_component);
+        vec3  normal_velocity  = this->collision->normal * normal_component;
+        vec3  wall_velocity    = velocity - normal_velocity;
+        return wall_velocity;
     }
 
     bool check_for_ground()
     {
         // TODO - remove these checked blocks from later collision check
         for (auto &world_block : context.world_blocks) {
-            if (world_block->position.y < this->position.y && this->collision->intersects(world_block->collision)) {
+            if (world_block->position.y < this->position.y && this->collision->intersects(world_block->collision, true)) {
                 this->state = GROUNDED;
                 return true;
             }

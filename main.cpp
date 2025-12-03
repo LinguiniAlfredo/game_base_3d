@@ -171,8 +171,8 @@ void destroy_level()
 
 void init_level()
 {
-    context.entities.push_back(new Link(vec3(5.0f, 20.0f, 0.0f)));
-    context.entities.push_back(new Backpack(vec3(-5.0f, 20.0f, 0.0f)));
+    //context.entities.push_back(new Link(vec3(5.0f, 20.0f, 0.0f)));
+    //context.entities.push_back(new Backpack(vec3(-5.0f, 20.0f, 0.0f)));
 
     // create function for cube grid, pass in dims and origin
     for (int i = 1; i < 20; i+=2) {
@@ -302,7 +302,7 @@ void game_loop()
     Timer total_timer;
     Timer fps_cap_timer;
     uint64_t current_frame = 0;
-    float fps = 0;
+    //float fps = 0;
     float delta_time = 0;
 
     timer_start(&total_timer);
@@ -336,7 +336,7 @@ void game_loop()
             SDL_Delay(context.ticks_per_frame - ticks);
 
         delta_time = timer_get_ticks(&fps_cap_timer) / 1000.f;
-        fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
+        //fps = current_frame / (timer_get_ticks(&total_timer) / 1000.f);
         timer_start(&fps_cap_timer);
 
         //printf("FPS: %f\n", fps);
