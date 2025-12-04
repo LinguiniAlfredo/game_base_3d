@@ -69,8 +69,6 @@ struct Collision
         } else if (abs_norm.z > abs_norm.x && abs_norm.z > abs_norm.y) {
             this->normal = normalize(vec3(0.f, 0.f, norm.z));
         }
-
-        printf("collision normal: x: %f, y: %f, z: %f\n", this->normal.x, this->normal.y, this->normal.z);
     }
 
     void render()

@@ -87,12 +87,16 @@ struct PlayerController : Camera
         // vn = n * s
         // vw = vp - vn
         float normal_component = dot(velocity, this->collision->normal);
-        printf("velocity: %f, %f, %f\n", velocity.x, velocity.y, velocity.z);
-        printf("normal:   %f, %f, %f\n", this->collision->normal.x, this->collision->normal.y, this->collision->normal.z);
-        printf("dot: %f\n", normal_component);
-        vec3  normal_velocity  = this->collision->normal * normal_component;
-        vec3  wall_velocity    = velocity - normal_velocity;
-        return wall_velocity;
+        float angle_rad        = acos(dot(normalize(velocity), this->collision->normal));
+        printf("angle: %f\n", degrees(angle_rad));
+        
+        // check if angle between velocity and normal greater than 90 to not round corners
+        if (degrees(angle_rad) >= 90) {
+            vec3  normal_velocity = this->collision->normal * normal_component;
+            vec3  wall_velocity   = velocity - normal_velocity;
+            return wall_velocity;
+        }
+        return velocity;
     }
 
     bool check_for_ground()
