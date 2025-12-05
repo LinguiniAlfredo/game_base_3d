@@ -198,6 +198,9 @@ void init_level()
     }
     context.world_blocks.push_back(new Cube(vec3(0.f, 4.f, 0.f)));
     context.world_blocks.push_back(new Cube(vec3(-5.f, 2.f, 5.f)));
+
+    context.world_blocks.push_back(new Cube(vec3(-17.f, 2.f, 19.f)));
+    context.world_blocks.push_back(new Cube(vec3(-19.f, 2.f, 17.f)));
 }
 
 void handle_events(const float delta_time)

@@ -16,7 +16,7 @@ struct Collision
     bool         is_colliding;
     vec3         normal;
 
-    Collision(vec3 position, float width, float height, float depth)
+    Collision(const vec3 &position, const float &width, const float &height, const float &depth)
     {
         this->position        = position;
         this->half_dimensions = vec3(width*0.5f, height*0.5f, depth*0.5f);
@@ -36,7 +36,6 @@ struct Collision
     bool intersects(Collision *other, bool floor = false)
     {
         bool colliding = false;
-
 
         colliding = (fabs(position.x - other->position.x) <= (half_dimensions.x + other->half_dimensions.x)) &&
                     (fabs(position.y - other->position.y) <= (half_dimensions.y + other->half_dimensions.y)) &&
@@ -63,11 +62,11 @@ struct Collision
         vec3 abs_norm = abs(norm);
 
         if (abs_norm.x > abs_norm.y && abs_norm.x > abs_norm.z) {
-            this->normal = normalize(vec3(norm.x, 0.f, 0.f));
+            other->normal = normalize(vec3(norm.x, 0.f, 0.f));
         } else if (abs_norm.y > abs_norm.x && abs_norm.y > abs_norm.z) {
-            this->normal = normalize(vec3(0.f, norm.y, 0.f));
+            other->normal = normalize(vec3(0.f, norm.y, 0.f));
         } else if (abs_norm.z > abs_norm.x && abs_norm.z > abs_norm.y) {
-            this->normal = normalize(vec3(0.f, 0.f, norm.z));
+            other->normal = normalize(vec3(0.f, 0.f, norm.z));
         }
     }
 

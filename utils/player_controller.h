@@ -12,9 +12,9 @@ struct PlayerController : Camera
     vec3        gravity;
     PlayerState state;
 
-    PlayerController(const vec3 position = vec3(0.0f, 0.0f, 0.0f),
-                     const vec3 front = vec3(0.0f, 0.0f, -1.0f),
-                     const vec3 up = vec3(0.0f, 1.0f, 0.0f),
+    PlayerController(const vec3  position = vec3(0.0f, 0.0f, 0.0f),
+                     const vec3  front = vec3(0.0f, 0.0f, -1.0f),
+                     const vec3  up = vec3(0.0f, 1.0f, 0.0f),
                      const float yaw = YAW, float pitch = PITCH)
         :Camera(position, front, up, yaw, pitch)
     {
@@ -37,38 +37,46 @@ struct PlayerController : Camera
 
     void update(const float delta_time) override
     {
+        vec3 velocity;
+        vector<vec3> collision_normals;
+
         bool colliding = false;
         update_camera_vectors();
 
+        velocity = this->gravity * delta_time;
+
         if (AIRBORNE)
-            this->collision->position += this->gravity * delta_time;
-        colliding = check_for_ground();
+            this->collision->position += velocity;
+        colliding = check_for_ground(&collision_normals);
 
         if (colliding) {
-            resolve_collisions_floor();
-        } else {
-            this->position = this->collision->position;
+            velocity = resolve_collisions(velocity, collision_normals);
+            this->collision->position = this->position;
+            this->collision->position += velocity;
         }
+        this->position = this->collision->position;
 
+        collision_normals.clear();
         colliding = false;
-        vec3 velocity = this->trajectory * this->movement_speed * delta_time;
+        velocity = this->trajectory * this->movement_speed * delta_time;
         this->collision->position += velocity;
 
         for (auto &world_block : context.world_blocks) {
             if (this->collision->intersects(world_block->collision)) {
                 colliding = true;
-                break;
+                collision_normals.push_back(world_block->collision->normal);
             }
         }
         for (auto &entity : context.entities) {
             if (this->collision->intersects(entity->collision)) {
                 colliding = true;
-                break;
+                collision_normals.push_back(entity->collision->normal);
             }
         }
         if (colliding) {
-            velocity = resolve_collisions(velocity);
+            velocity = resolve_collisions(velocity, collision_normals);
             this->collision->position = this->position;
+        vector<vec3> collision_normals;
             this->collision->position += velocity;
         }
         this->position = this->collision->position;
@@ -80,36 +88,43 @@ struct PlayerController : Camera
         this->collision->position = this->position;
     }
 
-    vec3 resolve_collisions(vec3 velocity)
+    vec3 resolve_collisions(const vec3 &velocity, const vector<vec3> &collision_normals)
     {
         // instead of cancelling out velocity when colliding, project trajectory along plane we are colliding with
         // s = dot(vp, n)
         // vn = n * s
         // vw = vp - vn
-        float normal_component = dot(velocity, this->collision->normal);
-        float angle_rad        = acos(dot(normalize(velocity), this->collision->normal));
-        printf("angle: %f\n", degrees(angle_rad));
-        
-        // check if angle between velocity and normal greater than 90 to not round corners
-        if (degrees(angle_rad) >= 90) {
-            vec3  normal_velocity = this->collision->normal * normal_component;
-            vec3  wall_velocity   = velocity - normal_velocity;
-            return wall_velocity;
+        vec3 v = velocity;
+        for (auto &normal : collision_normals) {
+            float normal_component = dot(v, normal);
+            float angle_rad        = acos(dot(normalize(v), normal));
+
+            
+            // check if angle between velocity and normal greater than 90 to not round corners
+            if (degrees(angle_rad) > 90) {
+                vec3  normal_velocity = normal * normal_component;
+                v -= normal_velocity;
+                printf("angle: %f\n", degrees(angle_rad));
+            }
+
         }
-        return velocity;
+
+        return v;
     }
 
-    bool check_for_ground()
+    bool check_for_ground(vector<vec3> *collision_normals)
     {
         // TODO - remove these checked blocks from later collision check
         for (auto &world_block : context.world_blocks) {
             if (world_block->position.y < this->position.y && this->collision->intersects(world_block->collision, true)) {
                 this->state = GROUNDED;
-                return true;
+                collision_normals->push_back(world_block->collision->normal);
             }
         }
-        this->state = AIRBORNE;
-        return false;
+        if (collision_normals->empty())
+            this->state = AIRBORNE;
+
+        return !collision_normals->empty();
     }
 
     void process_keyboard(const SDL_Event &e) override
