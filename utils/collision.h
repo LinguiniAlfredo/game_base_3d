@@ -58,16 +58,7 @@ struct Collision
         vec3 delta = this->position - other->position;
         vec3 dim_delta = this->half_dimensions + other->half_dimensions;
 
-        vec3 norm = delta / dim_delta;
-        vec3 abs_norm = abs(norm);
-
-        if (abs_norm.x > abs_norm.y && abs_norm.x > abs_norm.z) {
-            other->normal = normalize(vec3(norm.x, 0.f, 0.f));
-        } else if (abs_norm.y > abs_norm.x && abs_norm.y > abs_norm.z) {
-            other->normal = normalize(vec3(0.f, norm.y, 0.f));
-        } else if (abs_norm.z > abs_norm.x && abs_norm.z > abs_norm.y) {
-            other->normal = normalize(vec3(0.f, 0.f, norm.z));
-        }
+        other->normal = delta / dim_delta;
     }
 
     void render()

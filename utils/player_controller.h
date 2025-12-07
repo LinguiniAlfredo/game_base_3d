@@ -1,5 +1,8 @@
 #include "camera.h"
 #include "collision.h"
+#include "../utils/utils.h"
+#include <algorithm>
+using namespace std;
 
 enum PlayerState {
     GROUNDED,
@@ -76,7 +79,6 @@ struct PlayerController : Camera
         if (colliding) {
             velocity = resolve_collisions(velocity, collision_normals);
             this->collision->position = this->position;
-        vector<vec3> collision_normals;
             this->collision->position += velocity;
         }
         this->position = this->collision->position;
@@ -88,25 +90,88 @@ struct PlayerController : Camera
         this->collision->position = this->position;
     }
 
-    vec3 resolve_collisions(const vec3 &velocity, const vector<vec3> &collision_normals)
+    vector<vec3> normalize_collisions(const vector<vec3> &collision_vectors) {
+        vector<vec3> collision_normals;
+        vector<vec3> unified_vectors = collision_vectors;
+
+        for (auto &norm : collision_vectors) {
+            print_vec3("orig: ", norm);
+            for (auto &other : collision_vectors) {
+                if (norm != other) {
+                    int index = index_of(unified_vectors, norm);
+                    if (index != -1) {
+                        float max_match = 0;
+                        int max_index = 0;
+                        if (norm.x == other.x) {
+                            if (abs(norm.x) > max_match) {
+                                max_match = abs(norm.x);
+                                max_index = 1;
+                            }
+                        }
+                        if (norm.y == other.y) {
+                            if (abs(norm.y) > max_match) {
+                                max_match = abs(norm.y);
+                                max_index = 2;
+                            }
+                        }
+                        if (norm.z == other.z) {
+                            if (abs(norm.z) > max_match) {
+                                max_match = abs(norm.z);
+                                max_index = 3;
+                            }
+                        }
+                        switch(max_index) {
+                            case 0:
+                                unified_vectors[index] = major_direction(norm);
+                                break;
+                            case 1:
+                                unified_vectors[index] = vec3(norm.x, 0.f, 0.f);
+                                break;
+                            case 2:
+                                unified_vectors[index] = vec3(0.f, norm.y, 0.f);
+                                break;
+                            case 3:
+                                unified_vectors[index] = vec3(0.f, 0.f, norm.z);
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (auto &norm : unified_vectors) {
+            vec3 abs_norm = abs(norm);
+            print_vec3("normal: ", norm);
+
+            if (abs_norm.x > abs_norm.y && abs_norm.x > abs_norm.z) {
+                collision_normals.push_back(normalize(vec3(norm.x, 0.f, 0.f)));
+            } else if (abs_norm.y > abs_norm.x && abs_norm.y > abs_norm.z) {
+                collision_normals.push_back(normalize(vec3(0.f, norm.y, 0.f)));
+            } else if (abs_norm.z > abs_norm.x && abs_norm.z > abs_norm.y) {
+                collision_normals.push_back(normalize(vec3(0.f, 0.f, norm.z)));
+            }
+        }
+        return collision_normals;
+    }
+
+    vec3 resolve_collisions(const vec3 &velocity, const vector<vec3> &collision_vectors)
     {
         // instead of cancelling out velocity when colliding, project trajectory along plane we are colliding with
         // s = dot(vp, n)
         // vn = n * s
         // vw = vp - vn
-        vec3 v = velocity;
+        vector<vec3> collision_normals = normalize_collisions(collision_vectors);
+        vec3 v                         = velocity;
+
         for (auto &normal : collision_normals) {
             float normal_component = dot(v, normal);
             float angle_rad        = acos(dot(normalize(v), normal));
 
-            
             // check if angle between velocity and normal greater than 90 to not round corners
             if (degrees(angle_rad) > 90) {
                 vec3  normal_velocity = normal * normal_component;
                 v -= normal_velocity;
-                printf("angle: %f\n", degrees(angle_rad));
             }
-
         }
 
         return v;
@@ -116,7 +181,7 @@ struct PlayerController : Camera
     {
         // TODO - remove these checked blocks from later collision check
         for (auto &world_block : context.world_blocks) {
-            if (world_block->position.y < this->position.y && this->collision->intersects(world_block->collision, true)) {
+            if (world_block->position.y < this->position.y && this->collision->intersects(world_block->collision)) {
                 this->state = GROUNDED;
                 collision_normals->push_back(world_block->collision->normal);
             }
